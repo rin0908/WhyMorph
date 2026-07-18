@@ -2,7 +2,7 @@
 
 - Event: OpenAI Build Week Tokyo
 - Date: 2026-07-18
-- Status: MVP implementation and local verification complete
+- Status: MVP built, verified, and publicly deployed
 - Tagline: 「なぜ？」を、操作できる学びへ。
 
 ## Goal
@@ -188,9 +188,6 @@ Build routes:
 
 - `OPENAI_API_KEY` を実行環境へ安全に設定
 - GPT-5.6実通信を1件確認
-- Sitesへデプロイ
-- 公開URLのシークレットウィンドウ確認
 - GitHub公開リポジトリ作成・push
-- READMEへ公開URL追記
 - 東京イベント提出とDevpost提出
 

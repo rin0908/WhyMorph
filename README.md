@@ -26,7 +26,7 @@ WhyMorphは学習テーマを次の流れへ変換します。
 
 ## Demo
 
-公開URLはデプロイ完了後に追記します。
+Public demo: https://whymorph.fumie1020.chatgpt.site
 
 ### 30秒の火山デモ
 
