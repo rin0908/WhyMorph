@@ -188,6 +188,5 @@ Build routes:
 
 - `OPENAI_API_KEY` を実行環境へ安全に設定
 - GPT-5.6実通信を1件確認
-- GitHub公開リポジトリ作成・push
 - 東京イベント提出とDevpost提出
 

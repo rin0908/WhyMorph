@@ -20,7 +20,7 @@ Create a data-driven educational app that turns a free learning theme into an in
 - [ ] Configure `OPENAI_API_KEY` in the active runtime
 - [ ] Verify one live GPT-5.6 generation
 - [x] Deploy and verify the public URL
-- [ ] Publish the GitHub repository
+- [x] Publish the GitHub repository
 - [ ] Complete event and Devpost submission
 
 ## Time gates
