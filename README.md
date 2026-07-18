@@ -199,12 +199,14 @@ npm run build
 
 2026-07-18のローカル検証:
 
-- Unit/API tests: 14 / 14 passed
+- Unit/API tests: 15 / 15 passed
 - TypeScript: passed
+- ESLint: passed
 - Production build: passed
 - GET `/`: HTTP 200
 - GET `/og.png`: HTTP 200
 - API key未設定時の `POST /api/scenario`: 明示的なHTTP 503
+- GPT-5.6実通信: HTTP 200（3変数・2ミッション・3警戒段階の生成を確認）
 
 ## Accessibility
 

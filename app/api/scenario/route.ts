@@ -46,16 +46,17 @@ Rules:
 - Keep prose concise and appropriate for the requested audience.
 `.trim();
 
-function stripUnsupportedStringLengths(value: unknown): unknown {
+export function sanitizeStructuredOutputSchema(value: unknown): unknown {
   if (Array.isArray(value)) {
-    return value.map(stripUnsupportedStringLengths);
+    return value.map(sanitizeStructuredOutputSchema);
   }
 
   if (value && typeof value === "object") {
     const clean: Record<string, unknown> = {};
     for (const [key, child] of Object.entries(value)) {
       if (key === "minLength" || key === "maxLength") continue;
-      clean[key] = stripUnsupportedStringLengths(child);
+      const safeKey = key === "oneOf" ? "anyOf" : key;
+      clean[safeKey] = sanitizeStructuredOutputSchema(child);
     }
     return clean;
   }
@@ -70,7 +71,7 @@ const baseTextFormat = zodTextFormat(
 
 const scenarioTextFormat = {
   ...baseTextFormat,
-  schema: stripUnsupportedStringLengths(
+  schema: sanitizeStructuredOutputSchema(
     baseTextFormat.schema,
   ) as Record<string, unknown>,
 };
@@ -241,14 +242,15 @@ export async function POST(request: Request): Promise<Response> {
   try {
     const client = new OpenAI({
       apiKey,
-      timeout: 45_000,
-      maxRetries: 1,
+      timeout: 120_000,
+      maxRetries: 0,
     });
 
     const response = await client.responses.create({
       model: MODEL,
       store: false,
       max_output_tokens: MAX_OUTPUT_TOKENS,
+      reasoning: { effort: "none" },
       instructions: SYSTEM_PROMPT,
       input: JSON.stringify(parsedRequest.data),
       text: {

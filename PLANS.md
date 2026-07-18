@@ -17,8 +17,8 @@ Create a data-driven educational app that turns a free learning theme into an in
 - [x] Add honest error handling and local fallback
 - [x] Apply the approved WhyMorph name and final OG image
 - [x] Pass unit tests, typecheck, production build, and HTTP smoke tests
-- [ ] Configure `OPENAI_API_KEY` in the active runtime
-- [ ] Verify one live GPT-5.6 generation
+- [x] Configure `OPENAI_API_KEY` in the active runtime
+- [x] Verify one live GPT-5.6 generation
 - [x] Deploy and verify the public URL
 - [x] Publish the GitHub repository
 - [ ] Complete event and Devpost submission

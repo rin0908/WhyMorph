@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { POST } from "../app/api/scenario/route";
+import {
+  POST,
+  sanitizeStructuredOutputSchema,
+} from "../app/api/scenario/route";
 
 function request(
   body: string,
@@ -67,4 +70,32 @@ test("APIキー未設定時はローカルシナリオを壊さず503を返す",
       process.env.OPENAI_API_KEY = original;
     }
   }
+});
+
+test("Structured Outputs用スキーマのoneOfを再帰的にanyOfへ変換する", () => {
+  const schema = sanitizeStructuredOutputSchema({
+    type: "object",
+    properties: {
+      expression: {
+        oneOf: [
+          { type: "string", minLength: 1, maxLength: 20 },
+          {
+            type: "object",
+            properties: {
+              nested: {
+                oneOf: [{ type: "number", minimum: 0 }],
+              },
+            },
+          },
+        ],
+      },
+    },
+  }) as Record<string, unknown>;
+
+  const serialized = JSON.stringify(schema);
+  assert.equal(serialized.includes('"oneOf"'), false);
+  assert.equal(serialized.includes('"anyOf"'), true);
+  assert.equal(serialized.includes('"minLength"'), false);
+  assert.equal(serialized.includes('"maxLength"'), false);
+  assert.equal(serialized.includes('"minimum":0'), true);
 });
