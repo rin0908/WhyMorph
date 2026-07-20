@@ -85,6 +85,15 @@ export function VolcanoLab() {
     "--magma": String(0.72 + values.magma / 360),
     "--gas": String(0.28 + values.gas / 140),
     "--block": String(0.18 + values.blockage / 120),
+    "--photo-saturation": String(0.8 + values.magma / 286),
+    "--photo-brightness": String(0.75 + values.magma / 417),
+    "--core-scale": String(0.78 + values.magma / 333),
+    "--core-opacity": String(0.18 + values.magma / 152),
+    "--conduit-opacity": String(0.08 + values.magma / 185),
+    "--blockage-scale": String(0.65 + values.blockage / 222),
+    "--blockage-opacity": String(0.2 + values.blockage / 125),
+    "--plume-scale": String(0.78 + values.gas / 333),
+    "--plume-opacity": String(0.08 + values.gas / 294),
   } as CSSProperties;
 
   function update(key: VariableKey, value: number) {
@@ -288,74 +297,16 @@ export function VolcanoLab() {
 
           <div className="stage">
             {isVolcano ? (
-              <svg
-                viewBox="0 0 720 470"
+              <div
+                className="volcano-photo"
                 role="img"
-                aria-labelledby="volcano-title volcano-description"
+                aria-label="マグマだまり、火山ガス、火道閉塞を示す噴火直前の火山断面"
               >
-                <title id="volcano-title">火山内部の断面図</title>
-                <desc id="volcano-description">
-                  マグマだまり、火山ガス、火道閉塞と現在の噴火状態
-                </desc>
-                <defs>
-                  <linearGradient id="earth" x2="0" y2="1">
-                    <stop stopColor="#34302c" />
-                    <stop offset="1" stopColor="#17191a" />
-                  </linearGradient>
-                  <linearGradient id="lava">
-                    <stop stopColor="#ffc15a" />
-                    <stop offset=".5" stopColor="#ff6b35" />
-                    <stop offset="1" stopColor="#c92719" />
-                  </linearGradient>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="8" result="blur" />
-                    <feMerge>
-                      <feMergeNode in="blur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-                <g className="ash">
-                  <circle cx="350" cy="77" r="32" />
-                  <circle cx="324" cy="52" r="34" />
-                  <circle cx="377" cy="45" r="42" />
-                </g>
-                <path
-                  className="mountain"
-                  d="M20 390 165 353 282 187 335 123 377 134 430 213 535 352 700 391 700 470 20 470Z"
-                />
-                <path
-                  className="strata"
-                  d="M45 374Q230 330 337 220Q470 345 685 375M65 411Q250 360 340 267Q470 363 670 412M90 447Q260 397 345 315Q480 410 645 448"
-                />
-                <path className="crater" d="M316 139Q346 153 380 139" />
-                <g className="magma" filter="url(#glow)">
-                  <path d="M337 375C336 315 344 256 343 205C343 174 349 153 350 141" />
-                  <ellipse cx="338" cy="389" rx="112" ry="53" />
-                </g>
-                <g className="bubbles">
-                  <circle cx="315" cy="386" r="8" />
-                  <circle cx="352" cy="403" r="6" />
-                  <circle cx="370" cy="374" r="10" />
-                  <circle cx="345" cy="296" r="5" />
-                  <circle cx="345" cy="249" r="4" />
-                </g>
-                <g className="blockage">
-                  <path d="M328 231 357 219 360 243 329 251Z" />
-                  <path d="M331 266 354 255 358 275 333 286Z" />
-                </g>
-                <g className="eruption">
-                  <path d="M339 145C317 111 351 98 334 64C361 84 373 110 359 145Z" />
-                </g>
-                <g className="label">
-                  <path d="M226 390H134" />
-                  <text x="42" y="382">MAGMA CHAMBER</text>
-                  <text x="42" y="401">マグマだまり</text>
-                  <path d="M356 285H456" />
-                  <text x="466" y="278">CONDUIT</text>
-                  <text x="466" y="297">火道</text>
-                </g>
-              </svg>
+                <span className="volcano-core" aria-hidden="true" />
+                <span className="volcano-conduit" aria-hidden="true" />
+                <span className="volcano-blockage" aria-hidden="true" />
+                <span className="volcano-plume" aria-hidden="true" />
+              </div>
             ) : (
               <div className="causal-map">
                 <p>GPT-5.6 STRUCTURED SIMULATION</p>

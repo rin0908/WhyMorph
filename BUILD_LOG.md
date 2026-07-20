@@ -160,6 +160,12 @@ Fix: 既存準備資料を上書きせず、指定フォルダー内の `WhyMorp
 | GPT-5.6 live scenario generation | HTTP 200, 27.5 seconds |
 | approved OG source vs `public/og.png` | SHA-256 match |
 
+## 2026-07-20 — 火山ビジュアルのリアル化
+
+- 簡略SVGだった火山断面を、承認済みOG画像を再利用したリアルな火山断面へ変更
+- マグマ量・ガス圧力・火道閉塞率に応じて、マグマだまりの光、火道の発光、噴煙、閉塞表現が連動する構成を維持
+- 画像生成や外部素材の追加は行わず、プロジェクト内の既存アセットだけを使用
+
 Build routes:
 
 ```text
