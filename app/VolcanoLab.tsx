@@ -306,6 +306,20 @@ export function VolcanoLab() {
                 <span className="volcano-conduit" aria-hidden="true" />
                 <span className="volcano-blockage" aria-hidden="true" />
                 <span className="volcano-plume" aria-hidden="true" />
+                <span
+                  className="volcano-annotation volcano-annotation-magma"
+                  aria-hidden="true"
+                >
+                  <b>MAGMA CHAMBER</b>
+                  <small>マグマだまり</small>
+                </span>
+                <span
+                  className="volcano-annotation volcano-annotation-conduit"
+                  aria-hidden="true"
+                >
+                  <b>CONDUIT</b>
+                  <small>火道</small>
+                </span>
               </div>
             ) : (
               <div className="causal-map">
