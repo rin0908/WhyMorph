@@ -82,9 +82,14 @@ export function VolcanoLab() {
   const style = {
     "--alert": result.alert.color,
     "--pressure": String(pressure * 3.6) + "deg",
-    "--magma": String(0.72 + values.magma / 360),
-    "--gas": String(0.28 + values.gas / 140),
-    "--block": String(0.18 + values.blockage / 120),
+    "--og-magma-glow": String(0.08 + values.magma / 260),
+    "--og-conduit-glow": String(0.03 + values.magma / 380),
+    "--og-magma-scale": String(0.72 + values.magma / 260),
+    "--og-magma-dim": String(Math.max(0.06, 0.68 - values.magma / 160)),
+    "--og-smoke-opacity": String(0.04 + values.gas / 145),
+    "--og-smoke-scale": String(0.68 + values.gas / 220),
+    "--og-blockage-opacity": String(0.08 + values.blockage / 112),
+    "--og-blockage-scale": String(0.58 + values.blockage / 190),
   } as CSSProperties;
 
   function update(key: VariableKey, value: number) {
@@ -288,104 +293,33 @@ export function VolcanoLab() {
 
           <div className="stage">
             {isVolcano ? (
-              <svg
-                viewBox="0 0 720 470"
+              <div
+                className="og-volcano-visual"
                 role="img"
-                aria-labelledby="volcano-title volcano-description"
+                aria-label="火山内部の断面図。数値に応じてマグマ、煙、閉塞、噴火状態が変化します"
               >
-                <title id="volcano-title">火山内部の断面図</title>
-                <desc id="volcano-description">
-                  マグマだまり、火山ガス、火道閉塞と現在の噴火状態
-                </desc>
-                <defs>
-                  <linearGradient id="earth" x2="0" y2="1">
-                    <stop stopColor="#34302c" />
-                    <stop offset="1" stopColor="#17191a" />
-                  </linearGradient>
-                  <linearGradient id="lava">
-                    <stop stopColor="#ffc15a" />
-                    <stop offset=".5" stopColor="#ff6b35" />
-                    <stop offset="1" stopColor="#c92719" />
-                  </linearGradient>
-                  <linearGradient id="photo-shade" x2="0" y2="1">
-                    <stop stopColor="#111315" stopOpacity=".08" />
-                    <stop offset=".58" stopColor="#111315" stopOpacity=".32" />
-                    <stop offset="1" stopColor="#101213" stopOpacity=".9" />
-                  </linearGradient>
-                  <clipPath id="mountain-clip">
-                    <path d="M20 390 165 353 282 187 335 123 377 134 430 213 535 352 700 391 700 470 20 470Z" />
-                  </clipPath>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="8" result="blur" />
-                    <feMerge>
-                      <feMergeNode in="blur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-                <g className="ash">
-                  <circle cx="350" cy="77" r="32" />
-                  <circle cx="324" cy="52" r="34" />
-                  <circle cx="377" cy="45" r="42" />
-                </g>
-                <path
-                  className="mountain"
-                  d="M20 390 165 353 282 187 335 123 377 134 430 213 535 352 700 391 700 470 20 470Z"
-                />
-                <g clipPath="url(#mountain-clip)" aria-hidden="true">
-                  <image
-                    className="mountain-photo"
-                    href="/og.png"
-                    x="-720"
-                    y="-68"
-                    width="1450"
-                    height="650"
-                    preserveAspectRatio="none"
-                  />
-                  <rect
-                    className="mountain-photo-shade"
-                    x="0"
-                    y="0"
-                    width="720"
-                    height="470"
-                  />
-                </g>
-                <path
-                  className="mountain-outline"
-                  d="M20 390 165 353 282 187 335 123 377 134 430 213 535 352 700 391 700 470 20 470Z"
-                />
-                <path
-                  className="strata"
-                  d="M45 374Q230 330 337 220Q470 345 685 375M65 411Q250 360 340 267Q470 363 670 412M90 447Q260 397 345 315Q480 410 645 448"
-                />
-                <path className="crater" d="M316 139Q346 153 380 139" />
-                <g className="magma" filter="url(#glow)">
-                  <path d="M337 375C336 315 344 256 343 205C343 174 349 153 350 141" />
-                  <ellipse cx="338" cy="389" rx="112" ry="53" />
-                </g>
-                <g className="bubbles">
-                  <circle cx="315" cy="386" r="8" />
-                  <circle cx="352" cy="403" r="6" />
-                  <circle cx="370" cy="374" r="10" />
-                  <circle cx="345" cy="296" r="5" />
-                  <circle cx="345" cy="249" r="4" />
-                </g>
-                <g className="blockage">
-                  <path d="M328 231 357 219 360 243 329 251Z" />
-                  <path d="M331 266 354 255 358 275 333 286Z" />
-                </g>
-                <g className="eruption">
-                  <path d="M339 145C317 111 351 98 334 64C361 84 373 110 359 145Z" />
-                </g>
-                <g className="label">
-                  <path d="M226 390H134" />
-                  <text x="42" y="382">MAGMA CHAMBER</text>
-                  <text x="42" y="401">マグマだまり</text>
-                  <path d="M356 285H456" />
-                  <text x="466" y="278">CONDUIT</text>
-                  <text x="466" y="297">火道</text>
-                </g>
-              </svg>
+                <span className="og-magma-dimmer" aria-hidden="true" />
+                <span className="og-magma-glow" aria-hidden="true" />
+                <span className="og-conduit-glow" aria-hidden="true" />
+                <span className="og-volcano-blockage" aria-hidden="true" />
+                <span className="og-volcano-smoke" aria-hidden="true" />
+                <span className="og-eruption-flame" aria-hidden="true" />
+                <span className="og-eruption-embers" aria-hidden="true" />
+                <span
+                  className="og-volcano-label og-volcano-label-magma"
+                  aria-hidden="true"
+                >
+                  <b>MAGMA CHAMBER</b>
+                  <small>マグマだまり</small>
+                </span>
+                <span
+                  className="og-volcano-label og-volcano-label-conduit"
+                  aria-hidden="true"
+                >
+                  <b>CONDUIT</b>
+                  <small>火道</small>
+                </span>
+              </div>
             ) : (
               <div className="causal-map">
                 <p>GPT-5.6 STRUCTURED SIMULATION</p>
