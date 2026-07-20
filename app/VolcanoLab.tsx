@@ -82,11 +82,11 @@ export function VolcanoLab() {
   const style = {
     "--alert": result.alert.color,
     "--pressure": String(pressure * 3.6) + "deg",
-    "--og-magma-glow": String(0.08 + values.magma / 260),
-    "--og-conduit-glow": String(0.03 + values.magma / 380),
-    "--og-magma-scale": String(0.72 + values.magma / 260),
+    "--og-magma-glow": String(0.02 + values.magma / 520),
+    "--og-conduit-glow": String(0.01 + values.magma / 700),
+    "--og-magma-scale": String(0.82 + values.magma / 500),
     "--og-magma-dim": String(Math.max(0.06, 0.68 - values.magma / 160)),
-    "--og-smoke-opacity": String(0.04 + values.gas / 145),
+    "--og-smoke-opacity": String(0.015 + values.gas / 420),
     "--og-smoke-scale": String(0.68 + values.gas / 220),
     "--og-blockage-opacity": String(0.08 + values.blockage / 112),
     "--og-blockage-scale": String(0.58 + values.blockage / 190),
@@ -303,7 +303,6 @@ export function VolcanoLab() {
                 <span className="og-conduit-glow" aria-hidden="true" />
                 <span className="og-volcano-blockage" aria-hidden="true" />
                 <span className="og-volcano-smoke" aria-hidden="true" />
-                <span className="og-eruption-flame" aria-hidden="true" />
                 <span className="og-eruption-embers" aria-hidden="true" />
                 <span
                   className="og-volcano-label og-volcano-label-magma"
