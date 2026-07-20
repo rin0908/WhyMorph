@@ -17,8 +17,10 @@ WhyMorphは学習テーマを次の流れへ変換します。
 ```text
 学びたいテーマを入力
 → GPT-5.6が変数・派生値・条件・ミッションを構造化
+→ Web検索の実URLと、事実・仮定・信頼度を分けて提示
 → サーバーがZodで安全性を再検証
 → 決定論的なローカルエンジンで実行
+→ GPT Image 2の通常／結果画像を閾値に合わせて切り替え
 → 学習者が変数を操作し、因果関係を発見
 ```
 
@@ -40,7 +42,7 @@ Public demo: https://whymorph.fumie1020.chatgpt.site
 
 2. ガス圧力と火道の詰まりを下げると、圧力指数と警戒状態が即時に変わります。
 3. `30 / 40 / 35` では圧力指数が `36.5` となり、安定化ミッションに成功します。
-4. すべてを `100` にすると圧力指数は `100` となり、噴火条件と失敗判定を確認できます。
+4. すべてを `100` にすると圧力指数は `100`、警戒レベルは `5` となり、噴火条件と失敗判定を確認できます。
 5. 「テーマから生成」で別の学習テーマをGPT-5.6の因果シミュレーションへ変換します。
 
 > 火山モデルは教育・体験用です。実際の噴火予測や避難判断には使用できません。
@@ -49,9 +51,12 @@ Public demo: https://whymorph.fumie1020.chatgpt.site
 
 - 3変数を操作するリアルタイム因果シミュレーション
 - リアルな火山断面、圧力指数、警戒状態、ミッション結果の連動表示
-- GPT-5.6による任意テーマのシナリオ生成
+- GPT-5.6による任意テーマへの回答とシナリオ生成
+- Responses API Web searchによる参考資料の実URL表示
+- 事実、教育用の数値仮定、モデル信頼度の分離表示
+- GPT Image 2によるテーマ別の写実的な通常／結果画像
 - GPT生成シナリオを同じ汎用エンジンへ安全に切り替え
-- 入力制限、簡易レート制限、厳密な生成結果検証
+- 入力制限、5分あたり3回の簡易IPレート制限、厳密な生成結果検証
 - キーボード操作、`aria-live`、レスポンシブ表示
 - `prefers-reduced-motion` 対応
 - GPT生成が利用できない場合も火山MVPを継続利用可能
@@ -91,6 +96,8 @@ OR (
 
 成功条件と失敗条件が同時に成立した場合は失敗を優先します。
 
+警戒レベル1〜4は通常状態の段階、レベル5は噴火条件そのものから算出します。そのため、噴火判定と警戒表示が食い違いません。この指数・係数・閾値は因果関係を学ぶための教育用設定であり、気象庁の噴火警戒レベルや公的な噴火予測式ではありません。
+
 ## Architecture
 
 ```text
@@ -102,8 +109,10 @@ Browser
 Server route
   ├─ request validation
   ├─ rate limiting
-  ├─ OpenAI Responses API (gpt-5.6)
+  ├─ OpenAI Responses API (gpt-5.6 + Web search)
   ├─ strict Structured Outputs
+  ├─ OpenAI Image API (gpt-image-2)
+  ├─ actual search-source URL extraction
   └─ Zod semantic validation
           ↓
 Safe simulation engine
@@ -131,7 +140,9 @@ Safe simulation engine
 - `audience`
 - `learningGoal`
 
-サーバー側でのみ `OPENAI_API_KEY` を使用し、Responses APIの `gpt-5.6` とStrict Structured OutputsでシナリオJSONを生成します。生成結果はZodによる構造・範囲・参照整合性の検証を通過した場合だけブラウザへ返します。
+サーバー側でのみ `OPENAI_API_KEY` を使用し、Responses APIの `gpt-5.6`、Web search、Strict Structured Outputsで回答とシナリオJSONを生成します。出典URLをモデルのJSONに書かせず、Web searchのツール出力に実在するHTTPS URLだけを抽出します。生成結果はZodによる構造・範囲・参照整合性の検証を通過した場合だけブラウザへ返します。
+
+同時にImage APIの `gpt-image-2` が、同一構図の「通常状態／結果状態」を1枚の写実的な比較画像として生成します。スライダー操作のたびに画像APIを呼ばず、決定論エンジンの閾値判定に応じて2状態を切り替えます。画像生成だけ失敗した場合は、回答とシミュレーションを維持して因果マップへフォールバックします。
 
 入力は信頼しないデータとして扱い、本文内の命令へ従わないようサーバー指示を分離しています。失敗時に架空の成功データを返しません。
 
@@ -197,16 +208,16 @@ npm run typecheck
 npm run build
 ```
 
-2026-07-18のローカル検証:
+2026-07-20のローカル検証:
 
-- Unit/API tests: 15 / 15 passed
+- Unit/API tests: 18 / 18 passed
 - TypeScript: passed
 - ESLint: passed
 - Production build: passed
 - GET `/`: HTTP 200
 - GET `/og.png`: HTTP 200
 - API key未設定時の `POST /api/scenario`: 明示的なHTTP 503
-- GPT-5.6実通信: HTTP 200（3変数・2ミッション・3警戒段階の生成を確認）
+- GPT-5.6 / Web search / GPT Image 2実通信: HTTP 200（4警戒段階、実出典5件、写実画像WebPを確認）
 
 ## Accessibility
 
@@ -235,17 +246,20 @@ Codexを共同開発者として、資料確認、公式OpenAI仕様の検証、
 - 制御変数キーは現在3種類、派生指標は1種類に固定
 - 時間発展・確率モデル・永続化・ユーザー認証は未実装
 - 生成シナリオは教育用の簡易モデルで、専門判断には使用不可
+- GPTの信頼度はモデルの自己評価であり、専門家による妥当性確認ではない
+- テーマ画像は生成に時間がかかる場合があり、セッションを越えて永続保存しない
 - インメモリのレート制限は分散環境で厳密な全体上限にはならない
 - GPT実通信には実行環境ごとの `OPENAI_API_KEY` 設定が必要
 
 ## Future work
 
-- 生成前後の因果マップ差分プレビュー
+- 生成画像の永続キャッシュと再利用
 - 教員による承認・編集フロー
 - 複数ミッションと学習履歴
 - 学年・理解度に合わせた説明
 - 物理・生物・地学・経済などのテンプレート集
 - 永続的な分散レート制限
+- 公開デモ向けTurnstileまたは利用者単位の生成上限
 
 ## Third-party libraries and licenses
 

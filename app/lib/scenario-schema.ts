@@ -3,6 +3,7 @@ import { z } from "zod";
 const identifier = z.string().regex(/^[a-z][a-z0-9_]{0,47}$/);
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 const shortText = (max: number) => z.string().trim().min(1).max(max);
+const boundedNumber = z.number().finite().min(-10_000).max(10_000);
 
 export const ScenarioRequestSchema = z
   .object({
@@ -44,7 +45,7 @@ export const NumericExpressionSchema: z.ZodType<NumericExpression> = z.lazy(
       z
         .object({
           type: z.literal("literal"),
-          value: z.number().finite(),
+          value: boundedNumber,
         })
         .strict(),
       z
@@ -72,8 +73,8 @@ export const NumericExpressionSchema: z.ZodType<NumericExpression> = z.lazy(
         .object({
           type: z.literal("clamp"),
           value: NumericExpressionSchema,
-          min: z.number().finite(),
-          max: z.number().finite(),
+          min: boundedNumber,
+          max: boundedNumber,
         })
         .strict(),
     ]),
@@ -127,9 +128,9 @@ const variableSchema = z
     shortLabel: shortText(20),
     description: shortText(180),
     unit: shortText(16),
-    min: z.number().finite(),
-    max: z.number().finite(),
-    step: z.number().finite().positive(),
+    min: boundedNumber,
+    max: boundedNumber,
+    step: z.number().finite().positive().max(10_000),
     accent: color,
   })
   .strict();
@@ -139,8 +140,8 @@ const derivedMetricSchema = z
     label: shortText(48),
     description: shortText(180),
     unit: shortText(16),
-    min: z.number().finite(),
-    max: z.number().finite(),
+    min: boundedNumber,
+    max: boundedNumber,
     precision: z.number().int().min(0).max(3),
     expression: NumericExpressionSchema,
   })
@@ -177,11 +178,27 @@ const missionSchema = z
   })
   .strict();
 
+const learningSchema = z
+  .object({
+    question: shortText(160),
+    answer: shortText(800),
+    modelBasis: shortText(600),
+    assumptions: z.array(shortText(240)).min(1).max(5),
+    confidence: z
+      .object({
+        level: z.enum(["low", "medium", "high"]),
+        rationale: shortText(300),
+      })
+      .strict(),
+  })
+  .strict();
+
 export const ScenarioOutputSchema = z
   .object({
     id: identifier,
     title: shortText(100),
     location: shortText(100),
+    learning: learningSchema,
     variables: z
       .object({
         magma: variableSchema,
@@ -207,9 +224,9 @@ export const ScenarioOutputSchema = z
       .object({
         variables: z
           .object({
-            magma: z.number().finite(),
-            gas: z.number().finite(),
-            blockage: z.number().finite(),
+            magma: boundedNumber,
+            gas: boundedNumber,
+            blockage: boundedNumber,
           })
           .strict(),
         missionId: identifier,
@@ -222,6 +239,8 @@ function expressionStats(root: NumericExpression) {
   const stack = [root];
   let nodes = 0;
   let referencesPressure = false;
+  let hasDivision = false;
+  let hasInvalidClamp = false;
   while (stack.length > 0) {
     const expression = stack.pop();
     if (!expression) continue;
@@ -229,25 +248,38 @@ function expressionStats(root: NumericExpression) {
     if (expression.type === "metric") {
       referencesPressure ||= expression.metric === "pressure";
     } else if (expression.type === "operation") {
+      hasDivision ||= expression.operator === "divide";
       stack.push(expression.left, expression.right);
     } else if (expression.type === "clamp") {
+      hasInvalidClamp ||= expression.min > expression.max;
       stack.push(expression.value);
     }
     if (nodes > 96) break;
   }
-  return { nodes, referencesPressure };
+  return {
+    nodes,
+    referencesPressure,
+    hasDivision,
+    hasInvalidClamp,
+  };
 }
 
-function conditionNodeCount(root: Condition) {
+function conditionStats(root: Condition) {
   const stack = [root];
   let nodes = 0;
+  let hasDivision = false;
+  let hasInvalidClamp = false;
   while (stack.length > 0) {
     const condition = stack.pop();
     if (!condition) continue;
     nodes += 1;
     if (condition.type === "compare") {
-      nodes += expressionStats(condition.left).nodes;
-      nodes += expressionStats(condition.right).nodes;
+      const left = expressionStats(condition.left);
+      const right = expressionStats(condition.right);
+      nodes += left.nodes + right.nodes;
+      hasDivision ||= left.hasDivision || right.hasDivision;
+      hasInvalidClamp ||=
+        left.hasInvalidClamp || right.hasInvalidClamp;
     } else if (condition.type === "not") {
       stack.push(condition.condition);
     } else {
@@ -255,7 +287,7 @@ function conditionNodeCount(root: Condition) {
     }
     if (nodes > 128) break;
   }
-  return nodes;
+  return { nodes, hasDivision, hasInvalidClamp };
 }
 
 export const ScenarioDefinitionSchema = ScenarioOutputSchema.superRefine(
@@ -309,6 +341,20 @@ export const ScenarioDefinitionSchema = ScenarioOutputSchema.superRefine(
         message: "expression is too complex",
       });
     }
+    if (pressureStats.hasDivision) {
+      context.addIssue({
+        code: "custom",
+        path: ["derived", "pressure", "expression"],
+        message: "division is not allowed in generated scenario models",
+      });
+    }
+    if (pressureStats.hasInvalidClamp) {
+      context.addIssue({
+        code: "custom",
+        path: ["derived", "pressure", "expression"],
+        message: "clamp min must not exceed clamp max",
+      });
+    }
 
     const missionIds = new Set<string>();
     scenario.missions.forEach((mission, index) => {
@@ -320,14 +366,30 @@ export const ScenarioDefinitionSchema = ScenarioOutputSchema.superRefine(
         });
       }
       missionIds.add(mission.id);
-      if (
-        conditionNodeCount(mission.success.when) > 128 ||
-        conditionNodeCount(mission.failure.when) > 128
-      ) {
+      const successStats = conditionStats(mission.success.when);
+      const failureStats = conditionStats(mission.failure.when);
+      if (successStats.nodes > 128 || failureStats.nodes > 128) {
         context.addIssue({
           code: "custom",
           path: ["missions", index],
           message: "mission conditions are too complex",
+        });
+      }
+      if (successStats.hasDivision || failureStats.hasDivision) {
+        context.addIssue({
+          code: "custom",
+          path: ["missions", index],
+          message: "division is not allowed in mission conditions",
+        });
+      }
+      if (
+        successStats.hasInvalidClamp ||
+        failureStats.hasInvalidClamp
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["missions", index],
+          message: "clamp min must not exceed clamp max",
         });
       }
     });
@@ -342,6 +404,19 @@ export const ScenarioDefinitionSchema = ScenarioOutputSchema.superRefine(
     const fallbackStages = scenario.alertStages.filter(
       (stage) => stage.when === null,
     );
+    const hasExpectedLevels =
+      scenario.alertStages.length === 4 &&
+      scenario.alertStages.every(
+        (stage, index) => stage.level === index + 1,
+      );
+    if (!hasExpectedLevels) {
+      context.addIssue({
+        code: "custom",
+        path: ["alertStages"],
+        message:
+          "normal alert stages must be levels 1, 2, 3, and 4 in order",
+      });
+    }
     if (
       fallbackStages.length !== 1 ||
       scenario.alertStages.at(-1)?.when !== null
@@ -363,20 +438,52 @@ export const ScenarioDefinitionSchema = ScenarioOutputSchema.superRefine(
         });
       }
       ids.add(stage.id);
-      if (stage.when && conditionNodeCount(stage.when) > 128) {
-        context.addIssue({
-          code: "custom",
-          path: ["alertStages", index, "when"],
-          message: "condition is too complex",
-        });
+      if (stage.when) {
+        const stats = conditionStats(stage.when);
+        if (stats.nodes > 128) {
+          context.addIssue({
+            code: "custom",
+            path: ["alertStages", index, "when"],
+            message: "condition is too complex",
+          });
+        }
+        if (stats.hasDivision) {
+          context.addIssue({
+            code: "custom",
+            path: ["alertStages", index, "when"],
+            message: "division is not allowed in alert conditions",
+          });
+        }
+        if (stats.hasInvalidClamp) {
+          context.addIssue({
+            code: "custom",
+            path: ["alertStages", index, "when"],
+            message: "clamp min must not exceed clamp max",
+          });
+        }
       }
     });
 
-    if (conditionNodeCount(scenario.eruption.when) > 128) {
+    const eruptionStats = conditionStats(scenario.eruption.when);
+    if (eruptionStats.nodes > 128) {
       context.addIssue({
         code: "custom",
         path: ["eruption", "when"],
         message: "condition is too complex",
+      });
+    }
+    if (eruptionStats.hasDivision) {
+      context.addIssue({
+        code: "custom",
+        path: ["eruption", "when"],
+        message: "division is not allowed in threshold conditions",
+      });
+    }
+    if (eruptionStats.hasInvalidClamp) {
+      context.addIssue({
+        code: "custom",
+        path: ["eruption", "when"],
+        message: "clamp min must not exceed clamp max",
       });
     }
   },

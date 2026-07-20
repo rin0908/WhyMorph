@@ -24,7 +24,10 @@ import type {
   ScenarioDefinition,
   SimulationVariables,
 } from "../app/lib/simulation";
-import { ScenarioOutputSchema } from "../app/lib/scenario-schema";
+import {
+  ScenarioDefinitionSchema,
+  ScenarioOutputSchema,
+} from "../app/lib/scenario-schema";
 
 const literal = (value: number): NumericExpression => ({
   type: "literal",
@@ -76,6 +79,7 @@ test("pressureは宣言的な式から80.9と算出される", () => {
   );
   assert.equal(result.derived.pressure, 80.9);
   assert.equal(result.alert.id, "critical");
+  assert.equal(result.alert.level, 4);
   assert.equal(result.eruption, false);
   assert.equal(result.mission.status, "active");
 });
@@ -86,6 +90,7 @@ test("圧力に応じて全警戒段階が選択される", () => {
     [{ magma: 50, gas: 50, blockage: 50 }, "watch"],
     [{ magma: 70, gas: 70, blockage: 70 }, "warning"],
     [{ magma: 80, gas: 80, blockage: 80 }, "critical"],
+    [{ magma: 100, gas: 100, blockage: 100 }, "threshold_event"],
   ];
 
   for (const [variables, expected] of cases) {
@@ -114,8 +119,19 @@ test("ミッション成功と噴火失敗がルールから判定される", ()
   });
   assert.equal(failure.derived.pressure, 100);
   assert.equal(failure.eruption, true);
+  assert.equal(failure.alert.level, 5);
+  assert.equal(failure.alert.headline, "噴火発生");
+  assert.equal(failure.alert.color, "#ff4d67");
   assert.equal(failure.mission.status, "failure");
   assert.ok(failure.eruptionMessage);
+
+  const recovered = evaluateScenario(VOLCANO_SCENARIO, {
+    magma: 80,
+    gas: 80,
+    blockage: 80,
+  });
+  assert.equal(recovered.eruption, false);
+  assert.equal(recovered.alert.level, 4);
 });
 
 test("成功条件と失敗条件が同時成立した場合は失敗が優先される", () => {
@@ -284,8 +300,52 @@ test("Zod生成スキーマと実行エンジンの型・内容が一致する",
     ScenarioOutputSchema.parse(VOLCANO_SCENARIO);
   const result = evaluateScenario(parsed, parsed.reset.variables);
 
-  assert.equal(parsed.location, "霧島・新燃岳 観測所");
+  assert.equal(parsed.location, "新燃岳を題材にした教育用モデル");
+  assert.equal(parsed.learning.confidence.level, "low");
   assert.equal(result.derived.pressure, 80.9);
+});
+
+test("生成スキーマは除算、不正clamp、過大な数値を拒否する", () => {
+  const divided = {
+    ...VOLCANO_SCENARIO,
+    derived: {
+      pressure: {
+        ...VOLCANO_SCENARIO.derived.pressure,
+        expression: operation("divide", literal(1), literal(0)),
+      },
+    },
+  };
+  const invalidClamp = {
+    ...VOLCANO_SCENARIO,
+    derived: {
+      pressure: {
+        ...VOLCANO_SCENARIO.derived.pressure,
+        expression: {
+          type: "clamp" as const,
+          value: literal(1),
+          min: 10,
+          max: 0,
+        },
+      },
+    },
+  };
+  const excessive = {
+    ...VOLCANO_SCENARIO,
+    reset: {
+      ...VOLCANO_SCENARIO.reset,
+      variables: {
+        ...VOLCANO_SCENARIO.reset.variables,
+        magma: 1_000_000,
+      },
+    },
+  };
+
+  assert.equal(ScenarioDefinitionSchema.safeParse(divided).success, false);
+  assert.equal(
+    ScenarioDefinitionSchema.safeParse(invalidClamp).success,
+    false,
+  );
+  assert.equal(ScenarioDefinitionSchema.safeParse(excessive).success, false);
 });
 
 test("エンジンに動的コード実行経路が存在しない", async () => {

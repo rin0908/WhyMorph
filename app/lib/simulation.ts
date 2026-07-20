@@ -70,10 +70,24 @@ export interface MissionDefinition<M extends string = string> {
   readonly failure: OutcomeDefinition;
 }
 
+export type ConfidenceLevel = "low" | "medium" | "high";
+
+export interface LearningDefinition {
+  readonly question: string;
+  readonly answer: string;
+  readonly modelBasis: string;
+  readonly assumptions: readonly string[];
+  readonly confidence: Readonly<{
+    level: ConfidenceLevel;
+    rationale: string;
+  }>;
+}
+
 export interface ScenarioDefinition<M extends string = string> {
   readonly id: string;
   readonly title: string;
   readonly location: string;
+  readonly learning: LearningDefinition;
   readonly variables: Readonly<Record<VariableKey, VariableDefinition>>;
   readonly derived: Readonly<Record<DerivedKey, DerivedMetricDefinition>>;
   readonly alertStages: readonly AlertStageDefinition[];
@@ -319,13 +333,24 @@ export function evaluateSimulation<M extends string>(
   const variables = normalize(scenario, state.variables);
   const derived = computeDerivedMetrics(scenario, variables);
   const metrics: SimulationMetrics = { ...variables, ...derived };
-  const selected = scenario.alertStages.find(
+  const eruption = evaluateCondition(scenario.eruption.when, metrics);
+  const selectedStage = scenario.alertStages.find(
     (stage) => stage.when === null || evaluateCondition(stage.when, metrics),
   );
-  if (!selected) throw new Error("No alert stage matched; add a null fallback.");
-  const { when: _when, ...alert } = selected;
+  if (!selectedStage) throw new Error("No alert stage matched; add a null fallback.");
+  const { when: _when, ...baseAlert } = selectedStage;
   void _when;
-  const eruption = evaluateCondition(scenario.eruption.when, metrics);
+  const alert = eruption
+    ? {
+        id: "threshold_event",
+        level: 5,
+        label: "事象発生",
+        headline: scenario.eruption.title,
+        description: scenario.eruption.message,
+        color:
+          scenario.alertStages.at(-1)?.color ?? baseAlert.color,
+      }
+    : baseAlert;
   const mission = missionFor(scenario, state.missionId);
 
   let status: MissionStatus = "active";

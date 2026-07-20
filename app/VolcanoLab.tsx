@@ -3,6 +3,7 @@
 import type { CSSProperties, FormEvent } from "react";
 import { useMemo, useState } from "react";
 import { VOLCANO_SCENARIO } from "./data/volcano";
+import { ScenarioDefinitionSchema } from "./lib/scenario-schema";
 import type {
   ScenarioDefinition,
   SimulationState,
@@ -18,36 +19,85 @@ import {
 const KEYS = ["magma", "gas", "blockage"] as const;
 type GenStatus = "idle" | "loading" | "success" | "error";
 
+interface SourceLink {
+  readonly title: string;
+  readonly url: string;
+}
+
+interface GeneratedVisual {
+  readonly dataUrl: string;
+  readonly alt: string;
+}
+
+interface GeneratedPayload {
+  readonly scenario: ScenarioDefinition<string>;
+  readonly sources: readonly SourceLink[];
+  readonly visual: GeneratedVisual | null;
+}
+
 const LOCAL_SCENARIO =
   VOLCANO_SCENARIO as unknown as ScenarioDefinition<string>;
+
+const LOCAL_SOURCES: readonly SourceLink[] = [
+  {
+    title: "気象庁：各種の火山観測",
+    url: "https://www.jma.go.jp/jma/kishou/know/kazan/volmonita/volmonita.html",
+  },
+  {
+    title: "USGS：Volcanic gases",
+    url: "https://www.usgs.gov/programs/VHP/volcanic-gases-can-be-harmful-health-vegetation-and-infrastructure",
+  },
+];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object";
 }
 
-function generatedScenarioFrom(
-  body: unknown,
-): ScenarioDefinition<string> | null {
-  if (!isRecord(body) || !isRecord(body.scenario)) return null;
-  const candidate = body.scenario;
-  if (
-    typeof candidate.id !== "string" ||
-    typeof candidate.title !== "string" ||
-    !isRecord(candidate.variables) ||
-    !isRecord(candidate.derived) ||
-    !Array.isArray(candidate.alertStages) ||
-    !Array.isArray(candidate.missions) ||
-    !isRecord(candidate.reset)
-  ) {
+function safeSource(value: unknown): SourceLink | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.title !== "string" || typeof value.url !== "string") {
     return null;
   }
+  try {
+    const url = new URL(value.url);
+    if (url.protocol !== "https:") return null;
+    return { title: value.title, url: url.href };
+  } catch {
+    return null;
+  }
+}
+
+function generatedPayloadFrom(body: unknown): GeneratedPayload | null {
+  if (!isRecord(body) || !isRecord(body.scenario)) return null;
+  const parsed = ScenarioDefinitionSchema.safeParse(body.scenario);
+  if (!parsed.success) return null;
+
+  const evidence = isRecord(body.evidence) ? body.evidence : null;
+  const sources =
+    evidence && Array.isArray(evidence.sources)
+      ? evidence.sources
+          .map(safeSource)
+          .filter((source): source is SourceLink => source !== null)
+          .slice(0, 5)
+      : [];
+
+  const visualCandidate = isRecord(body.visual) ? body.visual : null;
+  const visual =
+    visualCandidate &&
+    typeof visualCandidate.dataUrl === "string" &&
+    visualCandidate.dataUrl.startsWith("data:image/webp;base64,") &&
+    typeof visualCandidate.alt === "string"
+      ? {
+          dataUrl: visualCandidate.dataUrl,
+          alt: visualCandidate.alt,
+        }
+      : null;
+
   return {
-    ...candidate,
-    location:
-      typeof candidate.location === "string"
-        ? candidate.location
-        : "GPT-5.6 生成シナリオ",
-  } as unknown as ScenarioDefinition<string>;
+    scenario: parsed.data as ScenarioDefinition<string>,
+    sources,
+    visual,
+  };
 }
 
 function apiErrorMessage(body: unknown) {
@@ -71,17 +121,31 @@ export function VolcanoLab() {
   const [gen, setGen] = useState<GenStatus>("idle");
   const [genTitle, setGenTitle] = useState<string | null>(null);
   const [genMessage, setGenMessage] = useState("");
+  const [sources, setSources] =
+    useState<readonly SourceLink[]>(LOCAL_SOURCES);
+  const [scenarioVisual, setScenarioVisual] =
+    useState<GeneratedVisual | null>(null);
 
   const result = useMemo(
     () => evaluateSimulation(scenario, state),
     [scenario, state],
   );
-  const pressure = Math.max(0, Math.min(100, result.derived.pressure));
+  const derivedValue = result.derived.pressure;
+  const derivedSpec = scenario.derived.pressure;
+  const derivedRatio = Math.max(
+    0,
+    Math.min(
+      1,
+      (derivedValue - derivedSpec.min) /
+        (derivedSpec.max - derivedSpec.min || 1),
+    ),
+  );
+  const derivedDisplay = derivedValue.toFixed(derivedSpec.precision);
   const values = state.variables;
   const isVolcano = scenario.id === VOLCANO_SCENARIO.id;
   const style = {
     "--alert": result.alert.color,
-    "--pressure": String(pressure * 3.6) + "deg",
+    "--pressure": String(derivedRatio * 360) + "deg",
     "--og-magma-glow": String(0.02 + values.magma / 520),
     "--og-conduit-glow": String(0.01 + values.magma / 700),
     "--og-magma-scale": String(0.82 + values.magma / 500),
@@ -108,6 +172,8 @@ export function VolcanoLab() {
     setGen("idle");
     setGenTitle(null);
     setGenMessage("");
+    setSources(LOCAL_SOURCES);
+    setScenarioVisual(null);
   }
 
   async function generate(event: FormEvent) {
@@ -115,7 +181,7 @@ export function VolcanoLab() {
     if (!theme.trim() || gen === "loading") return;
 
     setGen("loading");
-    setGenMessage("学習テーマを因果モデルへ変換しています…");
+    setGenMessage("回答・根拠・因果モデル・写実画像を生成しています…");
     setGenTitle(null);
 
     try {
@@ -135,17 +201,21 @@ export function VolcanoLab() {
         );
       }
 
-      const generated = generatedScenarioFrom(body);
+      const generated = generatedPayloadFrom(body);
       if (!generated) {
         throw new Error("生成結果の形式を確認できませんでした。");
       }
 
-      setScenario(generated);
-      setState(createInitialSimulationState(generated));
-      setGenTitle(generated.title);
+      setScenario(generated.scenario);
+      setState(createInitialSimulationState(generated.scenario));
+      setSources(generated.sources);
+      setScenarioVisual(generated.visual);
+      setGenTitle(generated.scenario.title);
       setGen("success");
       setGenMessage(
-        "GPT-5.6の構造化JSONを、安全な宣言型エンジンへ読み込みました。",
+        generated.visual
+          ? "GPT-5.6の回答と根拠、構造化モデル、通常／結果の写実画像を読み込みました。"
+          : "回答と根拠、構造化モデルを読み込みました。画像生成は完了しなかったため、因果マップで表示します。",
       );
     } catch (error) {
       setGen("error");
@@ -162,6 +232,11 @@ export function VolcanoLab() {
     success: "達成",
     failure: "再挑戦",
   }[result.mission.status];
+  const confidenceLabel = {
+    low: "低",
+    medium: "中",
+    high: "高",
+  }[scenario.learning.confidence.level];
 
   return (
     <main className="lab" style={style} id="top">
@@ -175,6 +250,7 @@ export function VolcanoLab() {
         </a>
         <nav aria-label="ページ内ナビ">
           <a href="#experiment">実験</a>
+          <a href="#evidence">回答と根拠</a>
           <a href="#mission">ミッション</a>
           <a href="#learn">しくみ</a>
         </nav>
@@ -319,6 +395,30 @@ export function VolcanoLab() {
                   <small>火道</small>
                 </span>
               </div>
+            ) : scenarioVisual ? (
+              <div
+                className="generated-scene"
+                style={
+                  {
+                    "--scenario-image": `url(${scenarioVisual.dataUrl})`,
+                  } as CSSProperties
+                }
+                role="img"
+                aria-label={scenarioVisual.alt}
+              >
+                <span className="generated-state">
+                  {result.eruption ? "RESULT / 結果状態" : "BEFORE / 通常状態"}
+                </span>
+                <div className="generated-values" aria-label="現在の入力値">
+                  {KEYS.map((key) => (
+                    <span key={key}>
+                      <small>{scenario.variables[key].shortLabel}</small>
+                      <strong>{Math.round(values[key])}</strong>
+                      <i>{scenario.variables[key].unit}</i>
+                    </span>
+                  ))}
+                </div>
+              </div>
             ) : (
               <div className="causal-map">
                 <p>GPT-5.6 STRUCTURED SIMULATION</p>
@@ -345,7 +445,7 @@ export function VolcanoLab() {
                 </div>
                 <div className="effect-card">
                   <span>{scenario.derived.pressure.label}</span>
-                  <strong>{Math.round(pressure)}</strong>
+                  <strong>{derivedDisplay}</strong>
                   <small>{result.alert.headline}</small>
                 </div>
               </div>
@@ -356,13 +456,14 @@ export function VolcanoLab() {
               aria-label={
                 scenario.derived.pressure.label +
                 " " +
-                Math.round(pressure) +
-                "%"
+                derivedDisplay +
+                scenario.derived.pressure.unit
               }
             >
               <div>
                 <span>
-                  <strong>{Math.round(pressure)}</strong>%
+                  <strong>{derivedDisplay}</strong>
+                  <i>{scenario.derived.pressure.unit}</i>
                 </span>
               </div>
               <p>DERIVED INDEX</p>
@@ -397,6 +498,75 @@ export function VolcanoLab() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="evidence" id="evidence">
+        <div className="evidence-heading">
+          <p className="kicker">ANSWER / EVIDENCE / ASSUMPTIONS</p>
+          <h2>{scenario.learning.question}</h2>
+          <p>{scenario.learning.answer}</p>
+        </div>
+        <div className="evidence-grid">
+          <article className="basis-card">
+            <span>NUMERIC MODEL</span>
+            <h3>数値化の考え方</h3>
+            <p>{scenario.learning.modelBasis}</p>
+            <div className="model-now" aria-live="polite">
+              <span>現在の再計算結果</span>
+              <strong>
+                {derivedDisplay}
+                <i>{scenario.derived.pressure.unit}</i>
+              </strong>
+              <small>
+                警戒レベル {result.alert.level} / 閾値イベント：
+                {result.eruption ? "成立" : "未成立"}
+              </small>
+            </div>
+            <div
+              className={
+                "confidence " + scenario.learning.confidence.level
+              }
+            >
+              <strong>モデル信頼度（GPT自己評価）：{confidenceLabel}</strong>
+              <p>{scenario.learning.confidence.rationale}</p>
+            </div>
+          </article>
+          <article className="assumption-card">
+            <span>ASSUMPTIONS / LIMITS</span>
+            <h3>このモデルの仮定</h3>
+            <ul>
+              {scenario.learning.assumptions.map((assumption) => (
+                <li key={assumption}>{assumption}</li>
+              ))}
+            </ul>
+          </article>
+          <article className="source-card">
+            <span>SOURCES</span>
+            <h3>参考資料</h3>
+            {sources.length > 0 ? (
+              <ol>
+                {sources.map((source, index) => (
+                  <li key={source.url}>
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {index + 1}. {source.title} ↗
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p>
+                表示できる参考資料を取得できませんでした。信頼度を低として扱ってください。
+              </p>
+            )}
+            <small>
+              資料は現象の理解に使用し、係数と閾値は教育用の仮定として分けて表示しています。
+            </small>
+          </article>
         </div>
       </section>
 
@@ -447,7 +617,7 @@ export function VolcanoLab() {
             実験に変える。
           </h2>
           <p className="scenario-copy">
-            成功すると、生成された変数・ルール・ミッションがそのまま上のシミュレーターへ読み込まれます。
+            GPT-5.6が回答と根拠を調べ、変数・ルール・ミッションへ変換します。GPT Image 2は通常状態と結果状態の写実画像を作り、閾値に合わせて切り替えます。
           </p>
         </div>
         <form onSubmit={generate} aria-busy={gen === "loading"}>
