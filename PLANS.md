@@ -2,7 +2,7 @@
 
 ## Goal
 
-Create a data-driven educational app that turns a free learning theme into an interactive cause-and-effect simulation, with a complete volcano MVP.
+Create a data-driven educational app that turns a free learning theme into an interactive cause-and-effect simulation, with a protected volcano MVP and a complete rain-and-lightning experience.
 
 ## Milestones
 
@@ -38,12 +38,23 @@ Create a data-driven educational app that turns a free learning theme into an in
 - [x] Replace the toy inline SVG with an attributed CC BY-SA 4.0 ground-taxi photograph and isolate the aircraft region in an inline SVG mask
 - [x] Add visible thread bundles, exact counts, calculation details, sources, assumptions, and the required disclaimer
 - [x] Complete full build and browser regression checks for the science-audited version
-- [ ] Obtain user approval before deploying the science-audited version
+- [x] Create the `before-rain-lightning` recovery tag and isolated feature branch
+- [x] Add a deterministic three-input, seven-derived-value rain-and-lightning model
+- [x] Implement sunny, forming cloud, developing cloud, rain, heavy rain, thundercloud, and lightning states
+- [x] Add responsive CSS weather animation, visible charge separation, relative potential meter, and reduced-motion behavior
+- [x] Remove the spider-thread airplane experience from the public shell while preserving its development code
+- [x] Verify all rain/lightning states and the protected volcano flow in a browser
+- [x] Pass typecheck, full tests, lint, and production build locally
+- [ ] Obtain user approval before pushing or deploying the rain-and-lightning version
 - [ ] Complete event and Devpost submission
 
 ## 2026-07-21 scope correction
 
 The first spider-thread implementation was audited and found unsuitable for a real passenger-aircraft claim. Its 200 kg model, direct per-thread force input, 3-second distance, 0.75 m state threshold, and simple aircraft SVG are retained only in Git history. The active work uses an actual 737-8 mass reference, material cross-section and tensile-strength calculations, a safety factor, attachment efficiency, and a licensed photograph. Volcano and the generic GPT scenario path remain outside the edit boundary. No deployment is permitted until the user reviews the local result.
+
+## 2026-07-22 scope correction
+
+The spider-thread airplane experience is no longer part of the public product surface. Its audited code and licensed asset remain for development reference, but the active shell does not import, render, link, or describe it. The second public local experience is now a deterministic rain-and-lightning lab. It uses only water vapor, atmospheric instability, and updraft as direct inputs; cloud growth, precipitation, ice phase, charge separation, and lightning potential remain calculated values. Volcano calculation files, thresholds, defaults, assets, and tests stay unchanged from `before-rain-lightning`. Push and Sites deployment remain blocked until the user explicitly approves publication.
 
 ## Time gates
 

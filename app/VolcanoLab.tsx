@@ -2,7 +2,7 @@
 
 import type { CSSProperties, FormEvent } from "react";
 import { useMemo, useState } from "react";
-import { SpiderPlaneLab } from "./SpiderPlaneLab";
+import { RainLightningLab } from "./RainLightningLab";
 import { VOLCANO_SCENARIO } from "./data/volcano";
 import { ScenarioDefinitionSchema } from "./lib/scenario-schema";
 import type {
@@ -251,7 +251,7 @@ export function VolcanoLab() {
         </a>
         <nav aria-label="ページ内ナビ">
           <a href="#experiment">火山</a>
-          <a href="#spider-experiment">クモ糸×飛行機</a>
+          <a href="#rain-lightning-experiment">雨と雷</a>
           <a href="#evidence">回答と根拠</a>
           <a href="#learn">しくみ</a>
         </nav>
@@ -271,7 +271,7 @@ export function VolcanoLab() {
         </h1>
         <p className="lead">
           GPT-5.6が自由な学習テーマを構造化し、複数の条件と結果を操作できる実験へ変換します。
-          火山の変化と、クモの糸で飛行機を引く力の実験から体験できます。
+          火山の変化と、晴れから雲・雨・雷へ移る空の変化を操作して体験できます。
         </p>
         <div className="meta">
           <span>MODEL　{scenario.title}</span>
@@ -292,10 +292,10 @@ export function VolcanoLab() {
           <strong>火山はなぜ噴火する？</strong>
           <small>3つの原因から圧力と噴火を観察</small>
         </a>
-        <a href="#spider-experiment">
+        <a href="#rain-lightning-experiment">
           <span>EXPERIENCE / 02</span>
-          <strong>クモの糸で飛行機は動く？</strong>
-          <small>9つの条件と計算から移動と破断を観察</small>
+          <strong>雨と雷はどう生まれる？</strong>
+          <small>3つの条件から雲・雨・電荷・放電を観察</small>
         </a>
       </section>
 
@@ -588,7 +588,7 @@ export function VolcanoLab() {
         </div>
       </section>
 
-      <SpiderPlaneLab />
+      <RainLightningLab />
 
       <section className="learn" id="learn">
         <div>
@@ -647,7 +647,7 @@ export function VolcanoLab() {
               id="theme"
               value={theme}
               onChange={(event) => setTheme(event.target.value)}
-              placeholder="例：飛行機はなぜ飛ぶの？"
+              placeholder="例：虹はなぜできるの？"
               maxLength={100}
               required
             />

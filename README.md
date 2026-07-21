@@ -4,7 +4,7 @@
 
 WhyMorphは、GPT-5.6が自由な学習テーマを、変数を動かして因果関係を確かめられる教育シミュレーションへ変換するWebアプリです。
 
-OpenAI Build Week Tokyo（2026-07-18）で制作しました。最初から遊べる火山危機管理と「クモの糸で飛行機を動かせるか？」の体験に加え、テーマ・対象・学習ゴールを入力すると、GPT-5.6が新しいシナリオを構造化データとして生成し、安全なローカル計算で実行します。
+OpenAI Build Week Tokyo（2026-07-18）で制作しました。最初から遊べる火山危機管理と雨・雷の操作型体験に加え、テーマ・対象・学習ゴールを入力すると、GPT-5.6が新しいシナリオを構造化データとして生成し、安全なローカル計算で実行します。
 
 ## Problem
 
@@ -28,7 +28,7 @@ WhyMorphは学習テーマを次の流れへ変換します。
 
 ## Demo
 
-Public demo（この科学監査版はユーザー確認前のため未反映）: https://whymorph.fumie1020.chatgpt.site
+Public demo（この雨・雷版はユーザー確認前のため未反映）: https://whymorph.fumie1020.chatgpt.site
 
 ### 30秒の火山デモ
 
@@ -47,26 +47,26 @@ Public demo（この科学監査版はユーザー確認前のため未反映）
 
 > 火山モデルは教育・体験用です。実際の噴火予測や避難判断には使用できません。
 
-### 30秒のクモ糸×飛行機デモ
+### 30秒の雨・雷デモ
 
-1. `糸1本`：必要牽引力に大きく不足し、糸だけが切れて実物旅客機は動かない。
-2. `糸2本`：同じく機体は動かない。見栄えのための例外判定はない。
-3. `破断回避の最少`：破断は避けられても、安全率を満たさないため動かない。
-4. `必要本数−1`：必要本数に1本でも足りなければ動かない。
-5. `必要本数`：破断せず安全使用力が必要牽引力以上になり、ここで初めて模式的に動く。
+1. 初期値 `水蒸気20 / 不安定さ20 / 上昇気流15` では「晴れ」です。
+2. `50 / 30 / 35` で薄い雲が現れ、`70 / 50 / 70` で雲が縦に発達します。
+3. `90 / 60 / 80` では降水条件がそろい、24本の雨粒が動きます。
+4. `100 / 60 / 100` では54本の強い雨になりますが、氷相と電荷分離が不足するため雷は発生しません。
+5. `90 / 90 / 90` では正負電荷を示す雷雲になりますが、放電の目安には届きません。
+6. `95 / 95 / 95` で初めて放電条件がそろい、間隔を空けた短い稲妻を表示します。
+7. 1つずつ条件を下げると、雷から雨・雲・晴れへ決定論的に戻ります。「初期値」で `20 / 20 / 15` に戻ります。
 
-9つの入力を直接変えると、必要牽引力、糸1本の破断力・安全使用力、破断回避本数、安全率を満たす必要本数を即時に再計算します。`計算を見る` で式、SI単位変換、代入値、途中計算、出典と仮定を確認できます。
-固定効率を0にすると、糸の破断とは分けて「固定不能」と表示し、機体を動かしません。
-
-> 教育用の簡略モデルです。結果は入力した仮定に依存し、実際の航空機牽引設計には使用できません。
+> 本モデルの値は教育用の相対指標です。天気予報や雷の安全判断には使用できません。
 
 ## Main features
 
 - 3変数を操作するリアルタイム因果シミュレーション
 - リアルな火山断面、圧力指数、警戒状態、ミッション結果の連動表示
-- 9入力のSI物理モデルで、必要本数以上かつ破断しない場合だけ実物旅客機を模式移動
-- 「固定不能」「糸が先に切れる」「破断しないが安全率不足」「条件成立」の4状態と全途中計算
-- 出典・権利が確認できる実写の737-8と、視認性を確保したクモ糸の束表示
+- 水蒸気・不安定さ・上昇気流から7つの派生値を計算する雨・雷モデル
+- 晴れ、雲のでき始め、発達した雲、雨、強い雨、雷雲、雷発生の7状態
+- 半リアルなCSS雲、決定論的な雨粒、正負電荷、電位差メーター（教育用代理指標）、間隔を空けた稲妻
+- 現在不足している条件と、状態に一致する短い学習説明
 - GPT-5.6による任意テーマへの回答とシナリオ生成
 - Responses API Web searchによる参考資料の実URL表示
 - 事実、教育用の数値仮定、モデル信頼度の分離表示
@@ -114,7 +114,52 @@ OR (
 
 警戒レベル1〜4は通常状態の段階、レベル5は噴火条件そのものから算出します。そのため、噴火判定と警戒表示が食い違いません。この指数・係数・閾値は因果関係を学ぶための教育用設定であり、気象庁の噴火警戒レベルや公的な噴火予測式ではありません。
 
-### クモ糸×飛行機モデル
+### 雨・雷モデル
+
+利用者が直接操作する値は `waterVapor`（空気中の水蒸気量）、`instability`（大気の不安定さ）、`updraft`（上昇気流の強さ）の3つだけです。すべて0〜100へ制限し、雲の発達度を直接操作させません。非有限値は拒否し、状態判定に乱数を使いません。
+
+正規化した3入力を `w`、`i`、`u`、0〜1に制限する関数を `clamp01`、指定値から100まで0→1へ増える関数を `ramp` とすると、派生値は次の固定式で計算し、最後に0〜100へ変換します。
+
+```text
+condensation = w × (0.65u + 0.35i)
+cloud = condensation × (0.45 + 0.30i + 0.25u)
+particle = cloud × (0.50w + 0.30u + 0.20i)
+precipitation = particle × (0.55cloud + 0.25w + 0.20u)
+
+ice = cloud × ramp(instability, 30) × ramp(updraft, 35)
+charge = ice × ramp(updraft, 45) × (0.55i + 0.45cloud)
+lightningPotential = charge × (0.55ice + 0.25u + 0.20i)
+```
+
+水蒸気と上昇・不安定さを掛け合わせるため、水蒸気だけ、または上昇気流だけを最大にしても雨・雷にはなりません。雨と雷は別ゲートです。雨が強くても、氷相・電荷分離・大気の不安定さが不足すれば雷雲にも放電にもなりません。
+
+名前付き閾値は `app/data/rain-lightning.ts` に集約しています。値は自然界の予報基準ではなく、教育用相対指標の状態分けです。
+
+| 状態または開始条件 | 名前付き閾値と判定 |
+|---|---|
+| 氷相開始 | `ICE_PHASE_INSTABILITY_ONSET = 30`、`ICE_PHASE_UPDRAFT_ONSET = 35` |
+| 電荷分離開始 | `CHARGE_SEPARATION_UPDRAFT_ONSET = 45` |
+| 雲ができ始める | `CLOUD_FORMING_CONDENSATION_MIN = 8` かつ `CLOUD_FORMING_DEVELOPMENT_MIN = 6` |
+| 雲が発達する | `CLOUD_DEVELOPING_CONDENSATION_MIN = 25`、`CLOUD_DEVELOPING_DEVELOPMENT_MIN = 30`、`CLOUD_SUPPORT_INSTABILITY_MIN = 35` または `CLOUD_SUPPORT_UPDRAFT_MIN = 45` |
+| 雨 | `RAIN_CLOUD_MIN = 35`、`RAIN_PARTICLE_GROWTH_MIN = 28`、`RAIN_PRECIPITATION_MIN = 20` |
+| 強い雨 | `HEAVY_RAIN_CLOUD_MIN = 55`、`HEAVY_RAIN_PARTICLE_GROWTH_MIN = 60`、`HEAVY_RAIN_PRECIPITATION_MIN = 55` |
+| 雷雲 | `THUNDERCLOUD_CLOUD_MIN = 60`、`THUNDERCLOUD_ICE_PHASE_MIN = 45`、`THUNDERCLOUD_CHARGE_MIN = 30`、`THUNDERCLOUD_INSTABILITY_MIN = 70`、`THUNDERCLOUD_UPDRAFT_MIN = 70` |
+| 雷発生 | `LIGHTNING_CLOUD_MIN = 70`、`LIGHTNING_ICE_PHASE_MIN = 65`、`LIGHTNING_CHARGE_MIN = 55`、`LIGHTNING_POTENTIAL_MIN = 50`、`LIGHTNING_INSTABILITY_MIN = 85`、`LIGHTNING_UPDRAFT_MIN = 85` |
+| 説明文の高入力／低入力 | `EXPLANATION_HIGH_INPUT_MIN = 70`、`EXPLANATION_LOW_INPUT_MAX = 35` |
+
+状態は `雷発生 → 雷雲 → 強い雨 → 雨 → 雲が発達する → 雲ができ始める → 晴れ` の優先順で、各状態の複数条件を評価します。これは一本道の時間遷移ではありません。入力を下げた場合も同じ純関数で再評価し、適切な状態へ戻ります。
+
+科学的仮定と簡略化:
+
+- 実際の気温、露点、気圧、鉛直風速、雲底・雲頂高度を入力していないため、上昇気流と不安定さを上昇冷却・鉛直発達の代理にしています。
+- 氷相発達度は、雲が冷たい上層へ達し、氷晶・霰・過冷却水滴の衝突が起こりやすくなる度合いの代理です。
+- 雷発生可能性は電圧、観測確率、発雷確率ではありません。
+- 風、地形、エアロゾル、粒径分布、落下速度、時間発展、局地差は計算していません。
+- 雷の詳しい帯電過程には現在も研究されている部分があります。
+
+### 開発中・公開非表示のクモ糸×飛行機モデル
+
+このコードと監査記録は比較研究用に残していますが、現在の公開UIからimport、描画、ナビゲーション、体験カードを外しています。公開利用者は選択できません。
 
 対象は実物旅客機 `Boeing 737-8` です。初期質量 `82,871 kg` は[Boeing公式空港計画資料 Rev K](https://www.boeing.com/content/dam/boeing/boeingdotcom/commercial/airports/acaps/737MAX_RevK.pdf)の最大設計タキシー質量（仕様表の上限）で、写真撮影時の実測質量ではありません。
 
@@ -182,7 +227,8 @@ threadCount >= requiredThreadCount かつ破断しない
 Browser
   ├─ VolcanoLab UI
   ├─ volcano sliders / causal map / missions
-  ├─ SpiderPlaneLab / 9 SI inputs / licensed aircraft photo
+  ├─ RainLightningLab / 3 inputs / 7 derived indexes / weather animation
+  ├─ SpiderPlaneLab (development-only; not imported by the public UI)
   └─ POST /api/scenario
           ↓
 Server route
@@ -204,8 +250,10 @@ Safe simulation engine
 主要ファイル:
 
 - `app/VolcanoLab.tsx`: インタラクティブUIとシナリオ切り替え
-- `app/SpiderPlaneLab.tsx`: 実写写真の機体領域・糸束・9入力・途中計算・出典・学習表示
-- `app/data/spider-plane.ts`: SI単位、9入力の検証、式、安全優先の純粋な計算関数
+- `app/RainLightningLab.tsx`: 3入力、7派生値、状態説明、雲・雨・電荷・雷の表示
+- `app/RainLightningLab.module.css`: 火山CSSから隔離した半リアルな空と安全なアニメーション
+- `app/data/rain-lightning.ts`: 雨・雷の固定式、名前付き閾値、入力制限、純粋な状態評価
+- `app/SpiderPlaneLab.tsx` / `app/data/spider-plane.ts`: 公開UIから外した開発中モデル
 - `app/data/volcano.ts`: 火山シナリオの変数・式・条件・文言
 - `app/lib/simulation.ts`: 汎用AST評価エンジン
 - `app/lib/scenario-schema.ts`: 入力・生成結果のZod検証
@@ -289,28 +337,30 @@ npm run typecheck
 npm run build
 ```
 
-2026-07-21のローカル検証（科学監査版）:
+2026-07-22のローカル検証（雨・雷版、公開前）:
 
-- Unit/API tests: 38 / 38 passed
+- Unit/API tests: 55 / 55 passed
 - TypeScript: passed
 - ESLint: passed
 - Production build: passed
 - Local GET `/`: HTTP 200
-- Local GET `/boeing-737-taxi-cc-by-sa-4.jpg`: HTTP 200
-- Browser: 1本・2本・破断回避境界・必要本数−1・必要本数の全状態を確認
-- Browser: 390 px幅で横スクロールなし、実写・糸束・本数・状態・計算結果を確認
+- Browser: 雨・雷の7状態、単独最大3条件、雨粒24/54本、雷なし強雨、電荷分離、稲妻、逆戻り、リセットを確認
+- Browser: 390 px幅で横スクロールなし、入力・状態・空・雲・派生値を確認
+- Browser: 火山の `76 / 82 / 72 → 圧力80.9・警戒4`、`100 / 100 / 100 → 圧力100.0・警戒5・噴火`、リセットを確認
+- Protected volcano files: `before-rain-lightning` と同一
 - API key未設定時の `POST /api/scenario`: 明示的なHTTP 503
 - GPT-5.6 / Web search / GPT Image 2実通信: HTTP 200（4警戒段階、実出典5件、写実画像WebPを確認）
 
 ## Accessibility
 
 - すべてのレンジ入力にラベルと現在値を付与
+- 雨・雷の3入力は大きなスライダーと0〜100の数値入力を同期
 - 状態変化を `aria-live` で通知
-- 糸切断は大きな文字、赤色、分離した線を併用して通知
+- 正負電荷は記号と日本語ラベルを併記し、電位差メーター（物理的電圧ではない教育用代理指標）を `role="meter"` で通知
 - キーボードフォーカスを可視化
 - 色だけに依存せず数値・ラベル・説明を併用
 - モバイル向けレイアウト
-- 動きを減らすOS設定を尊重
+- `prefers-reduced-motion` では雨粒の移動と稲妻の点滅を止め、静止表現で状態を保持
 
 ## How Codex was used
 
@@ -322,12 +372,16 @@ Codexを共同開発者として、資料確認、公式OpenAI仕様の検証、
 - GPTは構造化シナリオを作り、結果計算は決定論的エンジンへ任せる
 - AI生成コードを実行しない
 - GPT障害時もローカルMVPを使えるようにする
+- 火山エンジンを一般化せず、雨・雷を独立した型付き純関数とCSS Moduleへ隔離する
+- クモ糸×飛行機はコードを保持したまま公開UIから外す
 - プロジェクト名は承認済みのWhyMorphへ統一する
 - 最終OGは承認済み画像を採用し、旧版を別名で保持する
 
 ## Limitations
 
-- GPT生成用の汎用ASTは制御変数3種類、派生指標1種類に固定（ローカルの飛行機体験は独立した型付き9入力モデル）
+- GPT生成用の汎用ASTは制御変数3種類、派生指標1種類に固定（雨・雷は独立した型付き3入力・7派生値モデル）
+- 雨・雷モデルは相対指標で、気温・露点・気圧・風・地形・粒径分布・時間発展を扱わず、予報には使用できない
+- クモ糸×飛行機モデルは開発中コードとして残るが、現在の公開UIからは選択できない
 - 飛行機モデルは低速・一次元・無風、エンジン停止、ブレーキ解除、糸の真円断面、荷重均等分担を仮定。牽引点、衝撃、疲労、湿度、長さによる欠陥確率は扱わない
 - 自然クモ糸を数百万本均一に生産・整列・固定できるかは評価しない
 - 実写写真の機体領域をインラインSVGマスクで分離し、そのレイヤーだけをデスクトップ18 px／モバイル8 px移動する。背景は静止し、距離・時間の縮尺ではない
@@ -352,7 +406,7 @@ Codexを共同開発者として、資料確認、公式OpenAI仕様の検証、
 
 各依存パッケージはそれぞれのライセンスに従います。プロジェクトの依存バージョンは `package-lock.json` で固定しています。
 
-飛行機写真 `public/boeing-737-taxi-cc-by-sa-4.jpg`:
+開発中コードに保持する飛行機写真 `public/boeing-737-taxi-cc-by-sa-4.jpg`（現在の公開UIでは未使用）:
 
 - 原題: “Singapore Airlines Boeing 737 9V-MBA Singapore 2025 (02)”
 - 作者: Bahnfrend

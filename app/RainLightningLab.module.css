@@ -1,0 +1,1491 @@
+.wxRoot {
+  position: relative;
+  scroll-margin-top: 20px;
+  padding: clamp(72px, 8vw, 118px) clamp(20px, 5vw, 78px);
+  overflow: hidden;
+  border-bottom: 1px solid rgba(232, 237, 230, 0.14);
+  background:
+    radial-gradient(circle at 82% 8%, rgba(112, 214, 255, 0.09), transparent 28%),
+    linear-gradient(180deg, #11181d 0%, #101416 100%);
+  color: #edece3;
+}
+
+.wxRoot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(232, 237, 230, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 237, 230, 0.025) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(180deg, black, transparent 48%);
+}
+
+.wxRoot > * {
+  position: relative;
+}
+
+.wxIntro {
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) minmax(320px, 0.86fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: end;
+  margin: 0 auto 42px;
+  max-width: 1520px;
+}
+
+.wxIntro h2 {
+  margin: 16px 0 0;
+  max-width: 840px;
+  font-size: clamp(36px, 4.8vw, 70px);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.wxIntro > p {
+  margin: 0 0 4px;
+  color: #c7ced0;
+  font-size: 14px;
+  line-height: 1.95;
+}
+
+.wxKicker,
+.wxControlHeading span,
+.wxVisualHeading span,
+.wxPanelHeading > span {
+  color: #70d6ff;
+  font: 10px Consolas, "SFMono-Regular", monospace;
+  letter-spacing: 0.13em;
+}
+
+.wxKicker {
+  margin: 0;
+}
+
+.wxWorkbench {
+  display: grid;
+  grid-template-columns: minmax(340px, 0.72fr) minmax(570px, 1.28fr);
+  max-width: 1520px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(232, 237, 230, 0.16);
+  background: #14191c;
+  box-shadow: 0 34px 100px rgba(0, 0, 0, 0.25);
+}
+
+.wxControls {
+  min-width: 0;
+  padding: clamp(28px, 3.6vw, 52px);
+  border-right: 1px solid rgba(232, 237, 230, 0.14);
+  background: linear-gradient(180deg, #151b1f, #121619);
+}
+
+.wxControlHeading,
+.wxVisualHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.wxControlHeading h3,
+.wxVisualHeading h3,
+.wxPanelHeading h3 {
+  margin: 9px 0 0;
+  font-size: clamp(20px, 2vw, 28px);
+}
+
+.wxReset {
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid rgba(232, 237, 230, 0.2);
+  background: transparent;
+  color: #b7bdbe;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.wxReset:hover {
+  border-color: #70d6ff;
+  color: #f2f1e8;
+}
+
+.wxReset:focus-visible,
+.wxSlider input:focus-visible,
+.wxMethod summary:focus-visible {
+  outline: 2px solid #70d6ff;
+  outline-offset: 4px;
+}
+
+.wxSliders {
+  margin-top: 34px;
+}
+
+.wxSlider {
+  padding: 25px 0 27px;
+  border-top: 1px solid rgba(232, 237, 230, 0.13);
+}
+
+.wxSliderHeading {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.wxSliderHeading > span {
+  color: var(--wx-input-accent);
+  font: 10px Consolas, "SFMono-Regular", monospace;
+}
+
+.wxSlider label strong {
+  display: block;
+  font-size: 15px;
+}
+
+.wxSlider label small {
+  display: block;
+  margin-top: 5px;
+  color: #8f999c;
+  font: 9px Consolas, "SFMono-Regular", monospace;
+  letter-spacing: 0.08em;
+}
+
+.wxValueEditor {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.wxValueEditor input {
+  width: 65px;
+  min-height: 42px;
+  padding: 5px 7px;
+  border: 1px solid rgba(232, 237, 230, 0.2);
+  background: #101619;
+  color: #f0efe7;
+  font: 500 21px Consolas, "SFMono-Regular", monospace;
+  text-align: right;
+}
+
+.wxValueEditor span {
+  color: #7f898c;
+  font-size: 10px;
+}
+
+.wxSlider > input[type="range"] {
+  width: 100%;
+  height: 44px;
+  margin: 10px 0 0;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.wxSlider > input[type="range"]::-webkit-slider-runnable-track {
+  height: 7px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--wx-input-accent) 0 var(--wx-input-fill),
+    #30393d var(--wx-input-fill)
+  );
+}
+
+.wxSlider > input[type="range"]::-webkit-slider-thumb {
+  width: 26px;
+  height: 26px;
+  margin-top: -9.5px;
+  appearance: none;
+  border: 4px solid #14191c;
+  border-radius: 50%;
+  background: var(--wx-input-accent);
+  box-shadow: 0 0 0 1px var(--wx-input-accent), 0 3px 15px rgba(0, 0, 0, 0.36);
+}
+
+.wxSlider > input[type="range"]::-moz-range-track {
+  height: 7px;
+  border: 0;
+  border-radius: 999px;
+  background: #30393d;
+}
+
+.wxSlider > input[type="range"]::-moz-range-progress {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--wx-input-accent);
+}
+
+.wxSlider > input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 4px solid #14191c;
+  border-radius: 50%;
+  background: var(--wx-input-accent);
+  box-shadow: 0 0 0 1px var(--wx-input-accent);
+}
+
+.wxSlider > p {
+  margin: 2px 0 0 40px;
+  color: #98a1a4;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.wxStateCard {
+  margin-top: 20px;
+  padding: 22px;
+  border: 1px solid rgba(112, 214, 255, 0.32);
+  border-left: 4px solid #70d6ff;
+  background: rgba(112, 214, 255, 0.045);
+}
+
+.wxRoot[data-weather-state="heavy_rain"] .wxStateCard,
+.wxRoot[data-weather-state="thundercloud"] .wxStateCard {
+  border-color: rgba(255, 184, 107, 0.42);
+  border-left-color: #ffb86b;
+  background: rgba(255, 184, 107, 0.045);
+}
+
+.wxRoot[data-weather-state="lightning"] .wxStateCard {
+  border-color: rgba(255, 239, 159, 0.54);
+  border-left-color: #ffef9f;
+  background: rgba(255, 239, 159, 0.055);
+}
+
+.wxStateCard > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #849093;
+  font: 9px Consolas, "SFMono-Regular", monospace;
+  letter-spacing: 0.08em;
+}
+
+.wxStateCard > div b {
+  color: #70d6ff;
+  font-weight: 500;
+}
+
+.wxStateCard > strong {
+  display: block;
+  margin-top: 14px;
+  font-size: clamp(27px, 3vw, 42px);
+  line-height: 1.05;
+}
+
+.wxStateCard > p {
+  margin: 13px 0 0;
+  color: #c5cbcc;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.wxStateCard > small {
+  display: block;
+  margin-top: 15px;
+  padding-top: 13px;
+  border-top: 1px solid rgba(232, 237, 230, 0.13);
+  color: #91e6c4;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.wxVisual {
+  min-width: 0;
+  padding: clamp(28px, 3.6vw, 52px);
+  background: #171d20;
+}
+
+.wxVisualHeading b {
+  color: #70d6ff;
+  font: 9px Consolas, "SFMono-Regular", monospace;
+  white-space: nowrap;
+}
+
+.wxScene {
+  --wx-cloud-highlight: rgba(255, 255, 255, 0.98);
+  --wx-cloud-top: #eff5f7;
+  --wx-cloud-mid: #cbd8dc;
+  --wx-cloud-low: #91a4ad;
+  --wx-cloud-base: rgba(73, 94, 105, 0.9);
+  position: relative;
+  height: 640px;
+  margin-top: 26px;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(232, 237, 230, 0.17);
+  background:
+    radial-gradient(circle at 78% 18%, rgba(255, 244, 193, 0.18), transparent 21%),
+    linear-gradient(180deg, #4d8fb5 0%, #79adc5 42%, #b9d1d7 71%, #d8dfd6 84%, #829b95 100%);
+  box-shadow:
+    inset 0 -70px 95px rgba(24, 49, 53, 0.2),
+    inset 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.wxScene::before,
+.wxScene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.wxScene::before {
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 52% 34%, rgba(214, 227, 231, 0.15), transparent 38%),
+    linear-gradient(180deg, #314f63 0%, #657e8a 46%, #a8b6b6 76%, #788c87 100%);
+  opacity: var(--wx-overcast-opacity);
+  transition: opacity 0.8s ease;
+}
+
+.wxScene::after {
+  z-index: 3;
+  background: linear-gradient(
+    180deg,
+    transparent 0 66%,
+    rgba(224, 232, 226, 0.06) 76%,
+    rgba(222, 229, 219, 0.18) 88%,
+    transparent 100%
+  );
+}
+
+.wxRoot[data-weather-state="cloud_forming"] .wxScene {
+  --wx-cloud-highlight: rgba(255, 255, 255, 0.96);
+  --wx-cloud-top: #f0f5f5;
+  --wx-cloud-mid: #d8e1e2;
+  --wx-cloud-low: #b7c6ca;
+  --wx-cloud-base: rgba(130, 148, 155, 0.68);
+}
+
+.wxRoot[data-weather-state="cloud_developing"] .wxScene {
+  --wx-cloud-highlight: rgba(253, 255, 255, 0.94);
+  --wx-cloud-top: #e9f0f1;
+  --wx-cloud-mid: #bdccd1;
+  --wx-cloud-low: #879ba4;
+  --wx-cloud-base: rgba(101, 122, 131, 0.68);
+}
+
+.wxRoot[data-weather-state="rain"] .wxScene,
+.wxRoot[data-weather-state="heavy_rain"] .wxScene {
+  --wx-cloud-highlight: rgba(237, 243, 244, 0.92);
+  --wx-cloud-top: #d7e1e4;
+  --wx-cloud-mid: #9baeb6;
+  --wx-cloud-low: #617781;
+  --wx-cloud-base: rgba(48, 68, 79, 0.92);
+}
+
+.wxRoot[data-weather-state="heavy_rain"] .wxScene {
+  --wx-cloud-highlight: rgba(222, 231, 233, 0.9);
+  --wx-cloud-top: #bdcbd0;
+  --wx-cloud-mid: #82969f;
+  --wx-cloud-low: #506874;
+  --wx-cloud-base: rgba(40, 59, 70, 0.95);
+}
+
+.wxRoot[data-weather-state="thundercloud"] .wxScene,
+.wxRoot[data-weather-state="lightning"] .wxScene {
+  --wx-cloud-highlight: rgba(197, 210, 215, 0.88);
+  --wx-cloud-top: #8fa4ad;
+  --wx-cloud-mid: #5a707b;
+  --wx-cloud-low: #344b57;
+  --wx-cloud-base: rgba(28, 46, 57, 0.96);
+}
+
+.wxHorizon {
+  position: absolute;
+  z-index: 2;
+  right: -10%;
+  bottom: -68px;
+  left: -10%;
+  height: 178px;
+  background:
+    radial-gradient(ellipse at 12% 32%, rgba(67, 91, 84, 0.78) 0 14%, transparent 15%),
+    radial-gradient(ellipse at 37% 34%, rgba(74, 100, 92, 0.72) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 68% 29%, rgba(56, 82, 76, 0.76) 0 20%, transparent 21%),
+    radial-gradient(ellipse at 91% 36%, rgba(71, 94, 87, 0.7) 0 17%, transparent 18%),
+    linear-gradient(180deg, rgba(98, 119, 108, 0.72), #273a36);
+  filter: blur(1.8px);
+  opacity: 0.72;
+}
+
+.wxSun {
+  position: absolute;
+  z-index: 1;
+  top: 66px;
+  right: 12%;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 250, 218, 0.96) 0 17%,
+    rgba(255, 236, 178, 0.56) 29%,
+    rgba(255, 226, 158, 0.18) 55%,
+    transparent 74%
+  );
+  box-shadow: 0 0 42px 16px rgba(255, 230, 165, 0.12);
+  filter: blur(0.25px);
+  opacity: var(--wx-sun-opacity);
+  transition: opacity 0.8s ease;
+}
+
+.wxStormShade {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(14, 30, 42, 0.58), rgba(27, 44, 53, 0.2) 55%, transparent 82%),
+    radial-gradient(ellipse at 48% 39%, rgba(25, 42, 52, 0.2), transparent 62%);
+  opacity: var(--wx-storm-opacity);
+  transition: opacity 0.8s ease;
+}
+
+.wxCloudSystem {
+  position: absolute;
+  z-index: 6;
+  top: 108px;
+  left: 50%;
+  width: min(58%, 500px);
+  height: 285px;
+  opacity: var(--wx-cloud-opacity);
+  transform: translateX(-50%) scale(var(--wx-cloud-scale-x), var(--wx-cloud-scale-y));
+  transform-origin: 50% 76%;
+  filter: drop-shadow(0 20px 24px rgba(10, 24, 32, 0.3));
+  transition:
+    opacity 0.7s ease,
+    transform 0.8s cubic-bezier(0.2, 0.65, 0.3, 1),
+    filter 0.75s ease;
+}
+
+.wxCloudSystem::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  right: 9%;
+  bottom: 8%;
+  left: 9%;
+  height: 38%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 48% 58%,
+    rgba(28, 48, 59, 0.24),
+    rgba(30, 50, 60, 0.1) 48%,
+    transparent 74%
+  );
+  filter: blur(18px);
+}
+
+.wxCloudBody,
+.wxCloudTower,
+.wxCloudAnvil,
+.wxCloudBase,
+.wxCloudShadow {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.wxCloudBody > i,
+.wxCloudTower > i,
+.wxCloudAnvil > i {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  border-radius: 58% 42% 52% 48% / 55% 46% 54% 45%;
+  background: radial-gradient(
+    ellipse at 41% 31%,
+    color-mix(in srgb, var(--wx-cloud-highlight) 30%, var(--wx-cloud-top)) 0,
+    var(--wx-cloud-top) 34%,
+    var(--wx-cloud-mid) 66%,
+    color-mix(in srgb, var(--wx-cloud-low) 70%, transparent) 84%,
+    transparent 100%
+  );
+  filter: blur(2.8px);
+  opacity: 0.82;
+}
+
+.wxCloudBody::before,
+.wxCloudTower::before,
+.wxCloudAnvil::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    var(--wx-cloud-top),
+    var(--wx-cloud-mid) 64%,
+    var(--wx-cloud-low)
+  );
+  filter: blur(5.5px);
+  opacity: 0.9;
+}
+
+.wxCloudBody {
+  z-index: 3;
+  bottom: 58px;
+  width: 88%;
+  height: 47%;
+}
+
+.wxCloudBody::before {
+  inset: 24% 4% 6%;
+}
+
+.wxCloudBody > i:nth-child(1) {
+  bottom: 4%;
+  left: -1%;
+  width: 40%;
+  height: 54%;
+  border-radius: 62% 38% 52% 48% / 48% 57% 43% 52%;
+}
+
+.wxCloudBody > i:nth-child(2) {
+  bottom: 9%;
+  left: 14%;
+  width: 44%;
+  height: 68%;
+  border-radius: 48% 52% 43% 57% / 61% 45% 55% 39%;
+}
+
+.wxCloudBody > i:nth-child(3) {
+  bottom: 0;
+  left: 35%;
+  width: 43%;
+  height: 73%;
+  border-radius: 56% 44% 58% 42% / 47% 61% 39% 53%;
+}
+
+.wxCloudBody > i:nth-child(4) {
+  right: 5%;
+  bottom: 7%;
+  width: 41%;
+  height: 61%;
+  border-radius: 43% 57% 51% 49% / 58% 42% 60% 40%;
+}
+
+.wxCloudBody > i:nth-child(5) {
+  right: -3%;
+  bottom: 2%;
+  width: 31%;
+  height: 49%;
+  border-radius: 55% 45% 38% 62% / 46% 58% 42% 54%;
+}
+
+.wxCloudTower {
+  z-index: 2;
+  bottom: 78px;
+  width: 55%;
+  height: 64%;
+  opacity: var(--wx-cloud-tower-opacity);
+  transition: opacity 0.65s ease;
+}
+
+.wxCloudTower > i {
+  filter: blur(4.5px);
+  opacity: 0.62;
+}
+
+.wxCloudTower::before {
+  inset: 13% 10% 4%;
+  border-radius: 46% 54% 50% 50% / 57% 48% 52% 43%;
+}
+
+.wxCloudTower > i:nth-child(1) {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  border-radius: 59% 41% 47% 53% / 51% 56% 44% 49%;
+}
+
+.wxCloudTower > i:nth-child(2) {
+  bottom: 19%;
+  left: 5%;
+  width: 69%;
+  height: 48%;
+  border-radius: 46% 54% 60% 40% / 62% 43% 57% 38%;
+}
+
+.wxCloudTower > i:nth-child(3) {
+  bottom: 36%;
+  left: 35%;
+  width: 62%;
+  height: 44%;
+  border-radius: 61% 39% 48% 52% / 45% 63% 37% 55%;
+}
+
+.wxCloudTower > i:nth-child(4) {
+  bottom: 58%;
+  left: 8%;
+  width: 64%;
+  height: 29%;
+  border-radius: 68% 32% 57% 43% / 62% 57% 43% 38%;
+  transform: rotate(-2deg);
+}
+
+.wxCloudAnvil {
+  z-index: 1;
+  top: 20px;
+  width: 82%;
+  height: 26%;
+  transform: translateX(-50%);
+  opacity: var(--wx-anvil-opacity);
+  transition: opacity 0.5s ease;
+}
+
+.wxCloudAnvil::before {
+  inset: 27% 3% 16%;
+}
+
+.wxCloudAnvil > i:nth-child(1) {
+  bottom: 3%;
+  left: 0;
+  width: 52%;
+  height: 55%;
+  border-radius: 65% 35% 49% 51% / 46% 58% 42% 54%;
+}
+
+.wxCloudAnvil > i:nth-child(2) {
+  bottom: 15%;
+  left: 24%;
+  width: 55%;
+  height: 64%;
+  border-radius: 45% 55% 58% 42% / 60% 44% 56% 40%;
+}
+
+.wxCloudAnvil > i:nth-child(3) {
+  right: 0;
+  bottom: 1%;
+  width: 48%;
+  height: 53%;
+  border-radius: 52% 48% 37% 63% / 43% 61% 39% 57%;
+}
+
+.wxCloudBase {
+  z-index: 4;
+  bottom: 54px;
+  width: 78%;
+  height: 15%;
+  border-radius: 42% 46% 52% 48% / 52% 50% 58% 56%;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--wx-cloud-mid) 54%, transparent),
+    color-mix(in srgb, var(--wx-cloud-base) 76%, transparent) 58%,
+    transparent 100%
+  );
+  filter: blur(4px);
+}
+
+.wxCloudShadow {
+  z-index: 0;
+  bottom: 34px;
+  width: 66%;
+  height: 10%;
+  border-radius: 50%;
+  background: rgba(14, 30, 39, 0.2);
+  filter: blur(18px);
+}
+
+.wxRoot[data-weather-state="sunny"] .wxCloudSystem {
+  opacity: 0;
+  filter: none;
+}
+
+.wxRoot[data-weather-state="cloud_forming"] .wxCloudShadow {
+  opacity: 0.1;
+}
+
+.wxRoot[data-weather-state="cloud_forming"] .wxCloudBase {
+  opacity: 0.16;
+}
+
+.wxRoot[data-weather-state="cloud_developing"] .wxCloudBase {
+  opacity: 0.48;
+}
+
+.wxRoot[data-weather-state="rain"] .wxCloudBase,
+.wxRoot[data-weather-state="heavy_rain"] .wxCloudBase {
+  opacity: 0.72;
+}
+
+.wxRoot[data-weather-state="thundercloud"] .wxCloudBase,
+.wxRoot[data-weather-state="lightning"] .wxCloudBase {
+  opacity: 0.84;
+}
+
+.wxRoot[data-weather-state="rain"] .wxCloudSystem,
+.wxRoot[data-weather-state="heavy_rain"] .wxCloudSystem {
+  filter: drop-shadow(0 24px 26px rgba(8, 21, 29, 0.4));
+}
+
+.wxRoot[data-weather-state="thundercloud"] .wxCloudSystem,
+.wxRoot[data-weather-state="lightning"] .wxCloudSystem {
+  filter: drop-shadow(0 27px 28px rgba(5, 16, 23, 0.5));
+}
+
+.wxRoot[data-weather-state="thundercloud"] .wxCloudBody > i,
+.wxRoot[data-weather-state="thundercloud"] .wxCloudAnvil > i,
+.wxRoot[data-weather-state="lightning"] .wxCloudBody > i,
+.wxRoot[data-weather-state="lightning"] .wxCloudAnvil > i {
+  filter: blur(2.35px);
+}
+
+.wxUpdrafts {
+  position: absolute;
+  z-index: 5;
+  right: 30%;
+  bottom: 94px;
+  left: 30%;
+  height: 260px;
+  opacity: var(--wx-updraft-opacity);
+  transition: opacity 0.45s ease;
+}
+
+.wxUpdrafts i {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 96px;
+  background: linear-gradient(180deg, rgba(145, 230, 196, 0), rgba(145, 230, 196, 0.68));
+  animation: wxUpdraft 2.8s ease-in-out infinite;
+}
+
+.wxUpdrafts i::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid rgba(145, 230, 196, 0.72);
+  border-left: 2px solid rgba(145, 230, 196, 0.72);
+  transform: rotate(45deg);
+}
+
+.wxUpdrafts i:nth-child(1) {
+  left: 17%;
+  animation-delay: -0.7s;
+}
+
+.wxUpdrafts i:nth-child(2) {
+  left: 50%;
+  height: 126px;
+  animation-delay: -1.8s;
+}
+
+.wxUpdrafts i:nth-child(3) {
+  left: 81%;
+  animation-delay: -2.3s;
+}
+
+.wxCharges {
+  position: absolute;
+  z-index: 8;
+  top: 144px;
+  left: 50%;
+  width: min(50%, 370px);
+  height: 172px;
+  transform: translateX(-50%);
+  color: #fff;
+  font: 600 10px Consolas, "SFMono-Regular", monospace;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 5px rgba(12, 25, 33, 0.9);
+}
+
+.wxCharges > span {
+  position: absolute;
+  padding: 6px 9px;
+  border: 1px solid color-mix(in srgb, currentColor 68%, transparent);
+  border-radius: 999px;
+  background: rgba(18, 34, 43, 0.58);
+  box-shadow: 0 4px 14px rgba(2, 9, 14, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+.wxPositive {
+  top: 5%;
+  right: 9%;
+  color: #ffe39a;
+}
+
+.wxNegative {
+  bottom: 13%;
+  left: 8%;
+  color: #a8e1ff;
+}
+
+.wxCharges small {
+  position: absolute;
+  right: 22%;
+  bottom: -4px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(16, 31, 39, 0.48);
+  color: rgba(244, 247, 247, 0.86);
+  font-size: 8px;
+  font-weight: 400;
+}
+
+.wxRainField {
+  position: absolute;
+  z-index: 7;
+  top: 302px;
+  right: 17%;
+  bottom: 74px;
+  left: 17%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wxRainHeavy {
+  right: 10%;
+  left: 10%;
+}
+
+.wxRainDrop {
+  position: absolute;
+  top: -54px;
+  left: var(--wx-drop-left);
+  width: var(--wx-drop-width);
+  height: var(--wx-drop-length);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(208, 239, 246, 0.34) 24%,
+    rgba(218, 246, 251, 0.9)
+  );
+  opacity: var(--wx-drop-opacity);
+  filter: blur(var(--wx-drop-blur));
+  transform: rotate(var(--wx-drop-angle));
+  animation: wxRainFall var(--wx-drop-duration) linear var(--wx-drop-delay) infinite;
+}
+
+.wxRainHeavy .wxRainDrop {
+  background: linear-gradient(
+    180deg,
+    rgba(173, 221, 234, 0.04),
+    rgba(219, 246, 251, 0.94)
+  );
+  box-shadow: 0 0 2px rgba(178, 229, 241, 0.18);
+}
+
+.wxLightning {
+  position: absolute;
+  z-index: 9;
+  top: 264px;
+  left: 52%;
+  width: 104px;
+  height: 222px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.wxLightning i {
+  position: absolute;
+  inset: -16% -65% -10%;
+  display: block;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 39%,
+    rgba(255, 246, 198, 0.16),
+    rgba(255, 231, 139, 0.055) 35%,
+    transparent 68%
+  );
+  filter: blur(5px);
+  opacity: 0;
+  animation: wxLightningPulse 8.8s 1.2s linear infinite;
+}
+
+.wxLightningSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  filter:
+    drop-shadow(0 0 4px rgba(255, 250, 220, 0.84))
+    drop-shadow(0 0 10px rgba(255, 224, 128, 0.3));
+  opacity: 0;
+  animation: wxLightningPulse 8.8s 1.2s linear infinite;
+}
+
+.wxLightningMain,
+.wxLightningBranch {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.wxLightningMain {
+  stroke: rgba(255, 253, 236, 0.98);
+  stroke-width: 3.8px;
+}
+
+.wxLightningBranch {
+  stroke: rgba(255, 241, 187, 0.88);
+  stroke-width: 1.9px;
+}
+
+.wxSceneState {
+  position: absolute;
+  z-index: 12;
+  top: 20px;
+  left: 20px;
+  min-width: 150px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(13, 25, 31, 0.65);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(9px);
+}
+
+.wxSceneState span {
+  display: block;
+  color: #91e6c4;
+  font: 9px Consolas, "SFMono-Regular", monospace;
+  letter-spacing: 0.1em;
+}
+
+.wxSceneState strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 20px;
+}
+
+.wxPotentialCard {
+  position: absolute;
+  z-index: 12;
+  right: 20px;
+  bottom: 20px;
+  left: 20px;
+  padding: 14px 16px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(14, 28, 35, 0.74);
+  box-shadow: 0 8px 26px rgba(5, 14, 19, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.wxPotentialCard > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.wxPotentialCard > div:first-child span {
+  font-size: 11px;
+}
+
+.wxPotentialCard > div:first-child strong {
+  font: 600 20px Consolas, "SFMono-Regular", monospace;
+}
+
+.wxPotentialCard strong i {
+  color: #a4abad;
+  font-size: 9px;
+  font-style: normal;
+}
+
+.wxPotentialTrack {
+  position: relative;
+  height: 8px;
+  margin-top: 10px;
+  overflow: visible;
+  border-radius: 999px;
+  background: rgba(235, 240, 240, 0.16);
+}
+
+.wxPotentialTrack > i {
+  display: block;
+  width: var(--wx-potential);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #75cbea, #b8d5cb 58%, #e8d28e);
+  box-shadow: 0 0 7px rgba(210, 229, 209, 0.18);
+  transition: width 0.45s ease;
+}
+
+.wxPotentialTrack > b {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: 50%;
+  width: 2px;
+  background: #fff4b2;
+  box-shadow: 0 0 0 2px rgba(13, 25, 31, 0.72);
+}
+
+.wxPotentialCard > small {
+  display: block;
+  margin-top: 8px;
+  color: #bdc5c7;
+  font-size: 9px;
+}
+
+.wxLearning {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+  gap: 14px;
+  max-width: 1520px;
+  margin: 14px auto 0;
+}
+
+.wxDerivedPanel,
+.wxMissingPanel {
+  min-width: 0;
+  padding: clamp(24px, 3vw, 38px);
+  border: 1px solid rgba(232, 237, 230, 0.14);
+  background: #151a1d;
+}
+
+.wxDerivedGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 25px;
+}
+
+.wxDerivedGrid > div {
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid rgba(232, 237, 230, 0.12);
+  background: #111619;
+}
+
+.wxDerivedGrid > div:last-child {
+  border-color: rgba(255, 211, 106, 0.28);
+}
+
+.wxDerivedGrid span {
+  display: block;
+  overflow: hidden;
+  color: #758085;
+  font: 10px Consolas, "SFMono-Regular", monospace;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wxDerivedGrid strong {
+  display: block;
+  margin-top: 10px;
+  color: #d9f4fa;
+  font: 600 29px Consolas, "SFMono-Regular", monospace;
+}
+
+.wxDerivedGrid b {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+}
+
+.wxDerivedGrid small {
+  display: block;
+  margin-top: 9px;
+  color: #8d9699;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.wxMissingPanel ul {
+  display: grid;
+  gap: 8px;
+  margin: 23px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wxMissingPanel li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 12px;
+  border-left: 2px solid #ffb86b;
+  background: rgba(255, 184, 107, 0.045);
+}
+
+.wxMissingPanel li span {
+  color: #c6cbcc;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.wxMissingPanel li strong {
+  font: 600 15px Consolas, "SFMono-Regular", monospace;
+}
+
+.wxMissingPanel li i {
+  color: #8e989b;
+  font-size: 8px;
+  font-style: normal;
+}
+
+.wxMissingPanel > small {
+  display: block;
+  margin-top: 16px;
+  color: #7f898c;
+  font-size: 9px;
+  line-height: 1.6;
+}
+
+.wxComplete {
+  margin: 23px 0 0;
+  padding: 16px;
+  border-left: 3px solid #91e6c4;
+  background: rgba(145, 230, 196, 0.055);
+  color: #d6e9e2;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.wxMethod {
+  max-width: 1520px;
+  margin: 14px auto 0;
+  border: 1px solid rgba(232, 237, 230, 0.14);
+  background: #121719;
+}
+
+.wxMethod summary {
+  min-height: 48px;
+  padding: 16px 20px;
+  color: #c8cecf;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.wxMethod > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  padding: 8px 24px 24px;
+  border-top: 1px solid rgba(232, 237, 230, 0.11);
+}
+
+.wxMethod p,
+.wxMethod li {
+  color: #9ca5a7;
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.wxMethod ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.wxDisclaimers {
+  max-width: 1520px;
+  margin: 14px auto 0;
+  padding: 18px 22px;
+  border: 1px solid rgba(232, 237, 230, 0.12);
+  background: rgba(12, 16, 18, 0.72);
+}
+
+.wxDisclaimers p {
+  margin: 0;
+  color: #9ba3a5;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.wxDisclaimers p + p {
+  margin-top: 6px;
+  color: #c2c8c9;
+}
+
+@keyframes wxUpdraft {
+  0% {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  35% {
+    opacity: 0.78;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-95px);
+  }
+}
+
+@keyframes wxRainFall {
+  from {
+    transform: translate3d(-9px, -62px, 0) rotate(var(--wx-drop-angle));
+  }
+  to {
+    transform: translate3d(var(--wx-drop-drift), 470px, 0) rotate(var(--wx-drop-angle));
+  }
+}
+
+@keyframes wxLightningPulse {
+  0%,
+  1.15%,
+  3.8%,
+  100% {
+    opacity: 0;
+  }
+  1.45% {
+    opacity: 0.82;
+  }
+  2.05% {
+    opacity: 0.11;
+  }
+  2.55% {
+    opacity: 0.62;
+  }
+  3.15% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1120px) {
+  .wxWorkbench {
+    grid-template-columns: 1fr;
+  }
+
+  .wxControls {
+    border-right: 0;
+    border-bottom: 1px solid rgba(232, 237, 230, 0.14);
+  }
+
+  .wxSliders {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 22px;
+  }
+
+  .wxSlider > p {
+    margin-left: 0;
+  }
+
+  .wxLearning {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  .wxIntro {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .wxIntro > p {
+    max-width: 700px;
+  }
+
+  .wxSliders {
+    grid-template-columns: 1fr;
+  }
+
+  .wxScene {
+    height: 590px;
+  }
+
+  .wxDerivedGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wxMethod > div {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 560px) {
+  .wxRoot {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .wxControls,
+  .wxVisual,
+  .wxDerivedPanel,
+  .wxMissingPanel {
+    padding: 22px 15px;
+  }
+
+  .wxControlHeading,
+  .wxVisualHeading {
+    gap: 10px;
+  }
+
+  .wxVisualHeading b {
+    max-width: 92px;
+    text-align: right;
+    white-space: normal;
+  }
+
+  .wxScene {
+    height: 520px;
+  }
+
+  .wxCloudSystem {
+    top: 108px;
+    width: 86%;
+    height: 242px;
+    transform-origin: 50% 76%;
+  }
+
+  .wxCharges {
+    top: 140px;
+    width: 82%;
+    height: 142px;
+  }
+
+  .wxCharges > span {
+    padding: 5px 7px;
+    font-size: 9px;
+  }
+
+  .wxPositive {
+    right: 2%;
+  }
+
+  .wxNegative {
+    bottom: 10%;
+    left: 1%;
+  }
+
+  .wxCharges small {
+    right: 10%;
+  }
+
+  .wxRainField {
+    top: 264px;
+    right: 8%;
+    bottom: 86px;
+    left: 8%;
+  }
+
+  .wxRainHeavy {
+    right: 4%;
+    left: 4%;
+  }
+
+  .wxLightning {
+    top: 245px;
+    left: 54%;
+    width: 72px;
+    height: 154px;
+  }
+
+  .wxSceneState {
+    top: 12px;
+    left: 12px;
+    min-width: 125px;
+    padding: 9px 10px;
+  }
+
+  .wxSceneState strong {
+    font-size: 17px;
+  }
+
+  .wxPotentialCard {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    padding: 12px 13px 10px;
+  }
+
+  .wxPotentialCard > div:first-child {
+    gap: 5px 10px;
+  }
+
+  .wxPotentialCard > div:first-child span {
+    max-width: 70%;
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .wxDerivedGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .wxDerivedGrid > div {
+    padding: 13px;
+  }
+
+  .wxMissingPanel li {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 380px) {
+  .wxDerivedGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .wxSliderHeading {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+
+  .wxValueEditor {
+    grid-column: 2;
+  }
+
+  .wxSceneState {
+    max-width: calc(100% - 24px);
+  }
+
+  .wxCharges small {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wxCloudSystem,
+  .wxSun,
+  .wxStormShade,
+  .wxScene::before,
+  .wxPotentialTrack > i,
+  .wxUpdrafts {
+    transition: none !important;
+  }
+
+  .wxUpdrafts i {
+    animation: none !important;
+    opacity: 0.28;
+  }
+
+  .wxRainDrop {
+    display: none;
+    animation: none !important;
+  }
+
+  .wxRainField {
+    background:
+      repeating-linear-gradient(
+        98deg,
+        transparent 0 27px,
+        rgba(192, 230, 239, 0.28) 28px 29px,
+        transparent 30px 48px
+      ),
+      repeating-linear-gradient(
+        101deg,
+        transparent 0 53px,
+        rgba(220, 243, 247, 0.38) 54px 55px,
+        transparent 56px 83px
+      );
+  }
+
+  .wxLightning i {
+    animation: none !important;
+    opacity: 0.5;
+  }
+
+  .wxLightningSvg {
+    animation: none !important;
+    opacity: 0.72;
+  }
+}
