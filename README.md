@@ -28,7 +28,7 @@ WhyMorphは学習テーマを次の流れへ変換します。
 
 ## Demo
 
-Public demo: https://whymorph.fumie1020.chatgpt.site
+Public demo（この科学監査版はユーザー確認前のため未反映）: https://whymorph.fumie1020.chatgpt.site
 
 ### 30秒の火山デモ
 
@@ -49,22 +49,24 @@ Public demo: https://whymorph.fumie1020.chatgpt.site
 
 ### 30秒のクモ糸×飛行機デモ
 
-1. `1本で試す`：糸1本では合計引力が摩擦に届かず「動かない」。
-2. 糸を6本、1本あたりの引く力を7Nへ：飛行機が少し横へ動く。
-3. 糸を20本へ：飛行機がはっきり横へ動き「動いた！」になる。
-4. 1本あたりの引く力を15Nへ：糸の強さ12Nを超え、線が途中で分かれて「糸が切れた！」になる。
-5. 質量や摩擦を上げ、動き始めるために必要な糸の本数が変わることを確かめる。
+1. `糸1本`：必要牽引力に大きく不足し、糸だけが切れて実物旅客機は動かない。
+2. `糸2本`：同じく機体は動かない。見栄えのための例外判定はない。
+3. `破断回避の最少`：破断は避けられても、安全率を満たさないため動かない。
+4. `必要本数−1`：必要本数に1本でも足りなければ動かない。
+5. `必要本数`：破断せず安全使用力が必要牽引力以上になり、ここで初めて模式的に動く。
 
-各状態は画面内の `すぐ試す` ボタンでも再現できます。5つの大きなスライダーを直接動かすと、機体位置、糸、合計強度、合計引力、摩擦力、必要本数、学習解説が同時に再計算されます。
+9つの入力を直接変えると、必要牽引力、糸1本の破断力・安全使用力、破断回避本数、安全率を満たす必要本数を即時に再計算します。`計算を見る` で式、SI単位変換、代入値、途中計算、出典と仮定を確認できます。
+固定効率を0にすると、糸の破断とは分けて「固定不能」と表示し、機体を動かしません。
 
-> クモ糸×飛行機モデルは、原因と結果を学ぶために単純化した3秒間の教育モデルです。実際の航空機やクモ糸の工学計算、設計、安全判断には使用できません。
+> 教育用の簡略モデルです。結果は入力した仮定に依存し、実際の航空機牽引設計には使用できません。
 
 ## Main features
 
 - 3変数を操作するリアルタイム因果シミュレーション
 - リアルな火山断面、圧力指数、警戒状態、ミッション結果の連動表示
-- 5変数で飛行機を実際に動かし、耐久限界では糸が分離して落ちる体験型SVGシミュレーション
-- 「動かない」「少し動く」「動いた！」「糸が切れた！」の4状態と、必要本数・合計強度の即時表示
+- 9入力のSI物理モデルで、必要本数以上かつ破断しない場合だけ実物旅客機を模式移動
+- 「固定不能」「糸が先に切れる」「破断しないが安全率不足」「条件成立」の4状態と全途中計算
+- 出典・権利が確認できる実写の737-8と、視認性を確保したクモ糸の束表示
 - GPT-5.6による任意テーマへの回答とシナリオ生成
 - Responses API Web searchによる参考資料の実URL表示
 - 事実、教育用の数値仮定、モデル信頼度の分離表示
@@ -114,16 +116,65 @@ OR (
 
 ### クモ糸×飛行機モデル
 
-5入力は決められた範囲へ制限し、次の宣言ルールを順番に評価します。
+対象は実物旅客機 `Boeing 737-8` です。初期質量 `82,871 kg` は[Boeing公式空港計画資料 Rev K](https://www.boeing.com/content/dam/boeing/boeingdotcom/commercial/airports/acaps/737MAX_RevK.pdf)の最大設計タキシー質量（仕様表の上限）で、写真撮影時の実測質量ではありません。
+
+9入力は出典範囲または明示した教育用範囲へ制限し、次をSI単位で計算します。
 
 ```text
-合計引力 = 糸の本数 × 1本あたりの引く力
-合計強度 = 糸の本数 × 1本あたりの強さ
-摩擦力 = 飛行機モデルの質量 × 9.8 × 摩擦率
-3秒後の距離 = 0.5 × max(合計引力 - 摩擦力, 0) ÷ 質量 × 3²
+gravity = 9.80665 m/s²
+
+rollingResistance = rollingResistanceCoefficient × mass × gravity
+slopeForce = mass × gravity × sin(slopeAngle)
+accelerationForce = mass × targetAcceleration
+requiredForce = rollingResistance + slopeForce + accelerationForce
+
+threadDiameterMeters = threadDiameterMicrometers × 10^-6
+threadArea = PI × (threadDiameterMeters / 2)^2
+tensileStrengthPa = tensileStrengthMPa × 10^6
+singleThreadBreakingForce = tensileStrengthPa × threadArea
+effectiveBreakingForcePerThread = singleThreadBreakingForce × attachmentEfficiency
+safeForcePerThread = effectiveBreakingForcePerThread / safetyFactor
+bundleBreakingForce = threadCount × effectiveBreakingForcePerThread
+bundleSafeForce = threadCount × safeForcePerThread
+breakingThreadCount = ceil(requiredForce / effectiveBreakingForcePerThread)
+requiredThreadCount = ceil(requiredForce / safeForcePerThread)
 ```
 
-判定順は、`1本あたりの引く力 > 1本の強さ` なら切断、合計引力が摩擦力以下なら静止、移動距離0.75m未満なら少し移動、それ以上なら大きく移動です。切断を最優先するため、耐久限界を超えた状態を「動いた」と誤表示しません。
+入力範囲と初期値は次のとおりです。資料にない操作範囲は、出典値と混同しないよう教育用仮定と明記しています。
+
+| 入力 | 最小 | 初期 | 最大 | 刻み | 根拠または仮定 |
+|---|---:|---:|---:|---:|---|
+| 飛行機の質量 | 60,000 kg | 82,871 kg | 82,871 kg | 1 kg | 上限・初期値はBoeing公式の737-8最大設計タキシー質量。下限は感度比較用の教育範囲 |
+| 転がり抵抗係数 | 0.015 | 0.020 | 0.020 | 0.001 | FAA掲載資料の乾燥路面・無制動タイヤの一般範囲。737-8固有値ではない |
+| 滑走路の傾斜 | 0° | 0° | 1.15° | 0.05° | 水平を初期値とした教育用UI範囲。上限は約2%勾配の感度比較 |
+| 目標加速度 | 0.001 m/s² | 0.020 m/s² | 0.050 m/s² | 0.001 m/s² | 低速牽引を比較する教育用仮定 |
+| クモ糸の直径 | 8 µm | 10 µm | 11 µm | 0.1 µm | Wu et al. (2018) の測定範囲 |
+| クモ糸の引張強度 | 800 MPa | 1,000 MPa | 1,100 MPa | 10 MPa | Wu et al. (2018) の測定範囲 |
+| 安全率 | 1 | 3 | 10 | 0.1 | 教育用仮定。航空機牽引設計の規格値ではない |
+| 固定効率 | 0 | 0.5 | 1 | 0.05 | 結び目・固定部で力を伝える割合の教育用仮定。0は固定不能 |
+| 糸の本数 | 1本 | 1本 | 100,000,000本 | 1本 | 整数。上限は比較計算のためのUI上限で、製造可能性を意味しない |
+
+固定効率0を最初に判定し、その後は破断を安全ゲートとして移動より優先します。
+
+```text
+attachmentEfficiency = 0
+  → 固定部が力を伝えられない。糸は破断せず、飛行機は動かさない
+
+requiredForce > threadCount × effectiveBreakingForcePerThread
+  → 糸が先に破断、飛行機は動かさない
+
+破断はしないが requiredForce > threadCount × safeForcePerThread
+  → 安全率不足、飛行機は動かさない
+
+threadCount >= requiredThreadCount かつ破断しない
+  → 入力した簡略モデル内でのみ移動条件成立
+```
+
+破断表示は、牽引側が必要牽引力まで張力をゆっくり増やす試行を仮定しています。破断力に達する前に引くのを止めた場合は、糸は切れず、飛行機も動きません。
+
+初期値（質量82,871 kg、転がり抵抗係数0.02、水平、目標加速度0.02 m/s²、直径10 µm、引張強度1,000 MPa、安全率3、固定効率0.5）では、必要牽引力は約17,911 N、糸1本の安全使用力は約0.01309 N、必要本数は1,368,312本です。糸1本・2本では絶対に機体を動かしません。
+
+クモ糸の初期物性は[Wu et al. (2018)](https://pubmed.ncbi.nlm.nih.gov/30321988/)のNephila pilipesドラグライン測定範囲（直径8〜11 µm、引張強度800〜1,100 MPa）内です。転がり抵抗係数0.02は[FAA掲載資料](https://www.faa.gov/sites/faa.gov/files/2022-11/AAR85-06.pdf)の乾燥路面・無制動タイヤの範囲を参照した一般仮定で、737-8固有の実測値ではありません。標準重力9.80665 m/s²は[NIST](https://www.nist.gov/pml/special-publication-811/nist-guide-si-appendix-b-conversion-factors/nist-guide-si-appendix-b8)を参照しています。
 
 ## Architecture
 
@@ -131,7 +182,7 @@ OR (
 Browser
   ├─ VolcanoLab UI
   ├─ volcano sliders / causal map / missions
-  ├─ SpiderPlaneLab / 5 sliders / animated SVG
+  ├─ SpiderPlaneLab / 9 SI inputs / licensed aircraft photo
   └─ POST /api/scenario
           ↓
 Server route
@@ -153,8 +204,8 @@ Safe simulation engine
 主要ファイル:
 
 - `app/VolcanoLab.tsx`: インタラクティブUIとシナリオ切り替え
-- `app/SpiderPlaneLab.tsx`: 飛行機の移動・糸の切断・5スライダー・学習表示
-- `app/data/spider-plane.ts`: 5入力の範囲、宣言ルール、純粋な計算関数
+- `app/SpiderPlaneLab.tsx`: 実写写真の機体領域・糸束・9入力・途中計算・出典・学習表示
+- `app/data/spider-plane.ts`: SI単位、9入力の検証、式、安全優先の純粋な計算関数
 - `app/data/volcano.ts`: 火山シナリオの変数・式・条件・文言
 - `app/lib/simulation.ts`: 汎用AST評価エンジン
 - `app/lib/scenario-schema.ts`: 入力・生成結果のZod検証
@@ -238,14 +289,16 @@ npm run typecheck
 npm run build
 ```
 
-2026-07-21のローカル検証:
+2026-07-21のローカル検証（科学監査版）:
 
-- Unit/API tests: 28 / 28 passed
+- Unit/API tests: 38 / 38 passed
 - TypeScript: passed
 - ESLint: passed
 - Production build: passed
-- GET `/`: HTTP 200
-- GET `/og.png`: HTTP 200
+- Local GET `/`: HTTP 200
+- Local GET `/boeing-737-taxi-cc-by-sa-4.jpg`: HTTP 200
+- Browser: 1本・2本・破断回避境界・必要本数−1・必要本数の全状態を確認
+- Browser: 390 px幅で横スクロールなし、実写・糸束・本数・状態・計算結果を確認
 - API key未設定時の `POST /api/scenario`: 明示的なHTTP 503
 - GPT-5.6 / Web search / GPT Image 2実通信: HTTP 200（4警戒段階、実出典5件、写実画像WebPを確認）
 
@@ -274,7 +327,10 @@ Codexを共同開発者として、資料確認、公式OpenAI仕様の検証、
 
 ## Limitations
 
-- GPT生成用の汎用ASTは制御変数3種類、派生指標1種類に固定（ローカルの飛行機体験は独立した型付き5変数モデル）
+- GPT生成用の汎用ASTは制御変数3種類、派生指標1種類に固定（ローカルの飛行機体験は独立した型付き9入力モデル）
+- 飛行機モデルは低速・一次元・無風、エンジン停止、ブレーキ解除、糸の真円断面、荷重均等分担を仮定。牽引点、衝撃、疲労、湿度、長さによる欠陥確率は扱わない
+- 自然クモ糸を数百万本均一に生産・整列・固定できるかは評価しない
+- 実写写真の機体領域をインラインSVGマスクで分離し、そのレイヤーだけをデスクトップ18 px／モバイル8 px移動する。背景は静止し、距離・時間の縮尺ではない
 - 時間発展・確率モデル・永続化・ユーザー認証は未実装
 - 生成シナリオは教育用の簡易モデルで、専門判断には使用不可
 - GPTの信頼度はモデルの自己評価であり、専門家による妥当性確認ではない
@@ -296,7 +352,17 @@ Codexを共同開発者として、資料確認、公式OpenAI仕様の検証、
 
 各依存パッケージはそれぞれのライセンスに従います。プロジェクトの依存バージョンは `package-lock.json` で固定しています。
 
+飛行機写真 `public/boeing-737-taxi-cc-by-sa-4.jpg`:
+
+- 原題: “Singapore Airlines Boeing 737 9V-MBA Singapore 2025 (02)”
+- 作者: Bahnfrend
+- 出典: [Wikimedia Commonsの元ファイルページ](https://commons.wikimedia.org/wiki/File:Singapore_Airlines_Boeing_737_9V-MBA_Singapore_2025_(02).jpg)
+- ライセンス: [Creative Commons Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)
+- 用途: 同型旅客機の代表視覚。写真撮影時の質量を計算値として使用していない
+- 変更: 原JPEGのバイト列は変更していない。画面では機体領域をインラインSVGマスクで切り抜いた派生表示と、同写真から作る静止背景を重ねる
+- 派生表示: 作者表示と同じCC BY-SA 4.0を維持し、画面内と本READMEから元画像・作者・ライセンスへリンク
+
 ## License
 
-MIT。詳細は `LICENSE` を参照してください。
+ソースコードはMITです。詳細は `LICENSE` を参照してください。上記の飛行機写真はMITの対象外で、CC BY-SA 4.0と作者表示を維持します。
 

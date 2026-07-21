@@ -295,7 +295,7 @@ export function VolcanoLab() {
         <a href="#spider-experiment">
           <span>EXPERIENCE / 02</span>
           <strong>クモの糸で飛行機は動く？</strong>
-          <small>5つの条件から移動と切断を観察</small>
+          <small>9つの条件と計算から移動と破断を観察</small>
         </a>
       </section>
 

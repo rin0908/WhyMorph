@@ -30,7 +30,20 @@ Create a data-driven educational app that turns a free learning theme into an in
 - [x] Verify all four states and mobile width in a browser
 - [x] Add regression tests and document the educational model limits
 - [x] Deploy and verify the spider-thread airplane update
+- [x] Audit the published spider-thread model, Git history, saved assets, formulas, and image rights
+- [x] Preserve the pre-audit state on `codex/spider-pre-science-audit`
+- [x] Replace the 200 kg / arbitrary-distance model with a nine-input SI force and tensile-strength model
+- [x] Make attachment failure and then thread rupture the safety gates, and prohibit aircraft movement below the required safe thread count
+- [x] Separate attachment-efficiency zero from thread rupture as a non-moving fixed-point failure state
+- [x] Replace the toy inline SVG with an attributed CC BY-SA 4.0 ground-taxi photograph and isolate the aircraft region in an inline SVG mask
+- [x] Add visible thread bundles, exact counts, calculation details, sources, assumptions, and the required disclaimer
+- [x] Complete full build and browser regression checks for the science-audited version
+- [ ] Obtain user approval before deploying the science-audited version
 - [ ] Complete event and Devpost submission
+
+## 2026-07-21 scope correction
+
+The first spider-thread implementation was audited and found unsuitable for a real passenger-aircraft claim. Its 200 kg model, direct per-thread force input, 3-second distance, 0.75 m state threshold, and simple aircraft SVG are retained only in Git history. The active work uses an actual 737-8 mass reference, material cross-section and tensile-strength calculations, a safety factor, attachment efficiency, and a licensed photograph. Volcano and the generic GPT scenario path remain outside the edit boundary. No deployment is permitted until the user reviews the local result.
 
 ## Time gates
 
