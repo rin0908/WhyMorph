@@ -381,3 +381,71 @@ Build routes:
 
 - 東京イベント提出とDevpost提出
 
+## 2026-07-22 — before-rain-lightning 安全チェックポイント
+
+雨・雷の実装には着手せず、現在の正常な火山を保護する準備と回帰確認だけを実施した。
+
+### Git復元点
+
+- 確認開始時の作業ツリー: clean（未コミット変更なし）
+- バックアップコミット: `79f34ffeae99037249c36a434138a2f56e30f489`
+- 復元用annotated tag: `before-rain-lightning`
+- 元の正常ブランチ: `codex/spider-science-model`
+- 準備作業ブランチ: `feature/rain-lightning`
+- GitHub push、Sitesデプロイ、`reset --hard`、force push、履歴書き換えは未実施
+
+### 火山関連ファイル
+
+直接実装・アセット:
+
+- `app/VolcanoLab.tsx`
+- `app/data/volcano.ts`
+- `public/volcano-real-v2.png`
+- `public/volcano-erupting-v2.png`
+
+共有経路・回帰テスト:
+
+- `app/page.tsx`
+- `app/globals.css`
+- `app/lib/simulation.ts`
+- `app/lib/scenario-schema.ts`
+- `app/api/scenario/route.ts`
+- `tests/simulation.test.ts`
+- `tests/spider-plane.test.ts`（火山状態への副作用がないことを確認する回帰を含む）
+
+### ブラウザでの火山確認
+
+| 操作 | マグマ量 | ガス圧力 | 火道の詰まり | 圧力指数 | 警戒状態 | 噴火 |
+|---|---:|---:|---:|---:|---|---|
+| 初期表示 | 76 | 82 | 72 | 80.9 | レベル4・緊急 | なし |
+| 3値を最大へ操作 | 100 | 100 | 100 | 100.0 | レベル5・事象発生 | `噴火発生` |
+| `初期値`を押してリセット | 76 | 82 | 72 | 80.9 | レベル4・緊急 | なし |
+
+- 写実火山断面、煙、マグマ、火道、警戒表示を目視確認
+- 噴火時に結果表示、警戒レベル5、ミッション失敗へ連動することを確認
+- リセット後に3入力、圧力、警戒、噴火状態が初期値へ戻ることを確認
+- ブラウザconsoleのwarning / error: 0件
+
+### 失敗時の非破壊な復元手順
+
+作業途中の内容を失わず元ブランチへ戻る場合:
+
+```powershell
+git status --short
+git add -A
+git commit -m "WIP: preserve rain-lightning attempt"
+git switch codex/spider-science-model
+git rev-parse HEAD
+```
+
+最後の出力が `79f34ffeae99037249c36a434138a2f56e30f489` であることを確認する。
+
+タグから完全に独立した復元ブランチを作る場合:
+
+```powershell
+git switch -c restore/before-rain-lightning before-rain-lightning
+git rev-parse HEAD
+```
+
+この手順は既存ブランチを上書きせず、`reset --hard` やforce操作も使用しない。
+
