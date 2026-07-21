@@ -2,6 +2,7 @@
 
 import type { CSSProperties, FormEvent } from "react";
 import { useMemo, useState } from "react";
+import { SpiderPlaneLab } from "./SpiderPlaneLab";
 import { VOLCANO_SCENARIO } from "./data/volcano";
 import { ScenarioDefinitionSchema } from "./lib/scenario-schema";
 import type {
@@ -249,9 +250,9 @@ export function VolcanoLab() {
           </span>
         </a>
         <nav aria-label="ページ内ナビ">
-          <a href="#experiment">実験</a>
+          <a href="#experiment">火山</a>
+          <a href="#spider-experiment">クモ糸×飛行機</a>
           <a href="#evidence">回答と根拠</a>
-          <a href="#mission">ミッション</a>
           <a href="#learn">しくみ</a>
         </nav>
         <a className="gpt-link" href="#scenario">
@@ -269,8 +270,8 @@ export function VolcanoLab() {
           <em>操作できる学びへ。</em>
         </h1>
         <p className="lead">
-          GPT-5.6が自由な学習テーマを構造化し、3つの変数と結果を操作できる実験へ変換します。
-          まずは「火山はなぜ噴火するのか」を体験してください。
+          GPT-5.6が自由な学習テーマを構造化し、複数の条件と結果を操作できる実験へ変換します。
+          火山の変化と、クモの糸で飛行機を引く力の実験から体験できます。
         </p>
         <div className="meta">
           <span>MODEL　{scenario.title}</span>
@@ -279,6 +280,23 @@ export function VolcanoLab() {
             ● {gen === "success" ? "GPT-5.6 GENERATED" : "LOCAL VOLCANO DEMO"}
           </span>
         </div>
+      </section>
+
+      <section className="experience-picker" aria-labelledby="experience-title">
+        <div>
+          <p className="kicker">CHOOSE AN EXPERIENCE</p>
+          <h2 id="experience-title">どの「なぜ？」から試す？</h2>
+        </div>
+        <a href="#experiment">
+          <span>EXPERIENCE / 01</span>
+          <strong>火山はなぜ噴火する？</strong>
+          <small>3つの原因から圧力と噴火を観察</small>
+        </a>
+        <a href="#spider-experiment">
+          <span>EXPERIENCE / 02</span>
+          <strong>クモの糸で飛行機は動く？</strong>
+          <small>5つの条件から移動と切断を観察</small>
+        </a>
       </section>
 
       <section className="experiment" id="experiment">
@@ -570,6 +588,8 @@ export function VolcanoLab() {
         </div>
       </section>
 
+      <SpiderPlaneLab />
+
       <section className="learn" id="learn">
         <div>
           <p className="kicker">HOW IT WORKS</p>
@@ -595,7 +615,7 @@ export function VolcanoLab() {
             <span>02</span>
             <div>
               <h3>変数を操作</h3>
-              <p>3つの値をひとつずつ変え、原因と結果の関係を観察します。</p>
+              <p>複数の値をひとつずつ変え、原因と結果の関係を観察します。</p>
             </div>
           </li>
           <li>
@@ -682,7 +702,7 @@ export function VolcanoLab() {
       <footer>
         <span>WhyMorph / CAUSE &amp; EFFECT LAB</span>
         <p>
-          教育・体験用シミュレーション。実際の防災判断には公的機関の情報を確認してください。
+          教育・体験用の簡略シミュレーション。専門的な予測、工学設計、安全判断には使用できません。
         </p>
         <a href="#top">TOP ↑</a>
       </footer>

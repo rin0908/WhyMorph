@@ -24,6 +24,12 @@ Create a data-driven educational app that turns a free learning theme into an in
 - [x] Add GPT Image 2 photorealistic before/result visuals with safe fallback
 - [x] Deploy and verify the public URL
 - [x] Publish the GitHub repository
+- [x] Add the local spider-thread airplane experience without changing the volcano engine
+- [x] Implement five bounded variables and four deterministic outcome states
+- [x] Animate actual airplane movement and visible thread separation
+- [x] Verify all four states and mobile width in a browser
+- [x] Add regression tests and document the educational model limits
+- [ ] Deploy and verify the spider-thread airplane update
 - [ ] Complete event and Devpost submission
 
 ## Time gates
