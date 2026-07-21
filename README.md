@@ -416,6 +416,35 @@ Codexを共同開発者として、資料確認、公式OpenAI仕様の検証、
 - 変更: 原JPEGのバイト列は変更していない。画面では機体領域をインラインSVGマスクで切り抜いた派生表示と、同写真から作る静止背景を重ねる
 - 派生表示: 作者表示と同じCC BY-SA 4.0を維持し、画面内と本READMEから元画像・作者・ライセンスへリンク
 
+## Judge Quick Start
+
+### Live Demo
+
+The project can be tested immediately without an account or installation:
+
+https://whymorph.fumie1020.chatgpt.site
+
+No login credentials are required.
+
+Supported platforms:
+- Desktop web browsers
+- Tablet web browsers
+- Mobile web browsers
+
+### Local Installation
+
+Requirements:
+- Node.js 22.13 or later
+- An OpenAI API key only for GPT-generated simulations
+
+Commands:
+
+```bash
+npm ci
+cp .env.example .env.local
+npm run dev
+```
+
 ## License
 
 ソースコードはMITです。詳細は `LICENSE` を参照してください。上記の飛行機写真はMITの対象外で、CC BY-SA 4.0と作者表示を維持します。
